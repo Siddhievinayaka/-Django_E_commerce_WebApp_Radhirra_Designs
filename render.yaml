@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: Radhirra_Designs
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn Radhirra_Designs.wsgi:application"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
