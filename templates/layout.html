@@ -1,0 +1,105 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      {% block title %}
+        Radhirra Designs
+      {% endblock %}
+    </title>
+    <link rel="icon" href="{% static 'companyImg/logo.png' %}" type="image/png" />
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Poppins:wght@400;500&display=swap');
+      .brand-logo {
+        font-family: 'Cormorant Garamond', serif;
+        letter-spacing: 0.1em;
+      }
+      body {
+        font-family: 'Poppins', sans-serif;
+      }
+      /* Transitions */
+      #sidebar,
+      #search-dropdown {
+        transition: all 0.3s ease-in-out;
+      }
+      #sidebar-overlay {
+        transition: opacity 0.3s ease-in-out;
+      }
+    </style>
+    <script>
+      // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+      if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+      } else {
+        document.documentElement.classList.remove('dark')
+      }
+    </script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#d8b4fe', // Soft purple/pink
+              secondary: '#a78bfa', // Medium purple
+              'dark-bg': '#2a2145',
+              'light-bg': '#3e306b',
+              'text-main': '#f3e8ff',
+              'text-secondary': '#d1c4e9'
+            }
+          }
+        }
+      }
+    </script>
+    <script>
+      function getCookie(name) {
+        let cookieValue = null
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';')
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim()
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === name + '=') {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+              break
+            }
+          }
+        }
+        return cookieValue
+      }
+      const csrftoken = getCookie('csrftoken')
+      
+      var cart = JSON.parse(getCookie('cart'))
+      if (cart == undefined) {
+        cart = {}
+        console.log('Cart Created!', cart)
+        document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+      }
+      
+      var user = '{{request.user}}'
+    </script>
+  </head>
+  <body class="bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-text-main">
+    {% include 'includes/_header.html' %}
+
+    {% include 'includes/_sidebar.html' %}
+
+    <main class="flex-grow">
+      {% block content %}
+
+      {% endblock %}
+    </main>
+
+    {% if request.resolver_match.url_name != 'profile' %}
+      {% include 'includes/_footer.html' %}
+    {% endif %}
+
+    <script src="{% static 'js/main.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/preline@2.3.0/dist/preline.min.js"></script>
+  </body>
+</html>

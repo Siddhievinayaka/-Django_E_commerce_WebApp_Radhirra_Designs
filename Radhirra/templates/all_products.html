@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="bg-gray-50">
+    <div class="container mx-auto px-4 py-16">
+      <h2 class="text-3xl font-bold tracking-tight text-gray-900 text-center mb-10">All Products</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {% for product in products %}
+          <div class="bg-white rounded-lg shadow-md overflow-hidden group">
+            <div class="relative">
+              <img src="{{ product.imageURL }}" alt="{{ product.name }}" class="w-full h-64 object-contain" />
+              <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="{% url 'product_detail' product.id %}" class="bg-white text-gray-900 py-2 px-4 rounded-button font-semibold">Quick View</a>
+              </div>
+            </div>
+            <div class="p-4">
+              <h3 class="text-lg font-semibold text-gray-900">{{ product.name }}</h3>
+              <p class="text-sm text-gray-500 mt-1">{{ product.sku }}</p>
+              <div class="mt-2 flex items-center justify-between">
+                {% if product.sale_price %}
+                  <p class="text-lg font-bold text-primary">₹{{ product.sale_price }}</p>
+                  <p class="text-sm text-gray-500 line-through">₹{{ product.regular_price }}</p>
+                {% else %}
+                  <p class="text-lg font-bold text-primary">₹{{ product.regular_price }}</p>
+                {% endif %}
+                <button class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-primary transition-colors"><i class="ri-shopping-cart-line text-xl"></i></button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
