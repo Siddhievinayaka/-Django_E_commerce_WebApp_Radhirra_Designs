@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: "./build.sh"
-    startCommand: "gunicorn Radhirra_Designs.wsgi:application"
+    startCommand: "gunicorn Radhirra_Designs.Radhirra_Designs.wsgi:application"
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
