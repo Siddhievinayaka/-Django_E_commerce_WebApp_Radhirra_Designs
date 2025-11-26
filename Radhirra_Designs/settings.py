@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "Radhirra",
+    "cloudinary",  # Add this line
+    "cloudinary_storage",  # Add this line
 ]
 
 
@@ -138,9 +140,25 @@ STATICFILES_DIRS = [
 # Whitenoise static file storage
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+# Cloudinary Configuration for Media Files
+CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
+CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY")
+CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET")
+
 # Media (uploads)
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"  # Keep this for local development
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Keep this for local development
+
+# Use Cloudinary for media storage in production (e.g., on Render)
+if not DEBUG:  # Assuming DEBUG is False in production
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": CLOUDINARY_CLOUD_NAME,
+        "API_KEY": CLOUDINARY_API_KEY,
+        "API_SECRET": CLOUDINARY_API_SECRET,
+    }
+    # Cloudinary's MEDIA_URL will be automatically handled by django-cloudinary-storage
+    # You might still need MEDIA_URL for local development, but Cloudinary will handle it in production.
 
 
 # -----------------------------
