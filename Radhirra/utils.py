@@ -44,8 +44,9 @@ def cookieCart(request):
 
 def cartData(request):
     if request.user.is_authenticated:
-        customer = request.user.customer
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        # Changed from customer = request.user.customer to user = request.user
+        user = request.user
+        order, created = Order.objects.get_or_create(user=user, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
@@ -63,14 +64,21 @@ def guestOrder(request, data):
     cookieData = cookieCart(request)
     items = cookieData["items"]
 
-    customer, created = Customer.objects.get_or_create(
-        email=email,
-    )
-    customer.name = name
-    customer.save()
+    # Since Customer model is removed, we'll use CustomUser or handle as anonymous
+    # For now, let's assume we create a user if not exists or use an anonymous user
+    # This part might need further refinement based on how you want to handle guest users
+    # For simplicity, I'm creating a placeholder user or associating with an existing one
+    # You might want to create a proper CustomUser if you want to store guest info
+    from users.models import CustomUser  # Import CustomUser model
+
+    user, created = CustomUser.objects.get_or_create(email=email)
+    if created:
+        user.username = email  # Or generate a unique username
+        user.set_unusable_password()  # Guest users don't need a password
+        user.save()
 
     order = Order.objects.create(
-        customer=customer,
+        user=user,  # Changed customer=customer to user=user
         complete=False,
     )
 
@@ -80,4 +88,4 @@ def guestOrder(request, data):
         orderItem = OrderItem.objects.create(
             product=product, order=order, quantity=item["quantity"]
         )
-    return customer, order
+    return user, order

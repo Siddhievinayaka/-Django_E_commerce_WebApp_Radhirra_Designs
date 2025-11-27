@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card" style="border-color: #f15096;">
+          <div class="card-header text-white" style="background-color: #f15096;">
+            <h3 class="text-center">User Profile</h3>
+          </div>
+          <div class="card-body">
+            <div class="text-center">
+              <img class="rounded-circle mb-3" src="{{ user.profile.imageURL }}" style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #f2b4c4;" />
+              <h2 class="mb-0">{{ user.username }}</h2>
+              <p class="text-muted">{{ user.email }}</p>
+            </div>
+            <hr style="border-top: 1px solid #f2b4c4;" />
+            <div>
+              <p>
+                <strong>Phone:</strong> {{ profile.phone|default:'N/A' }}
+              </p>
+              <p>
+                <strong>Gender:</strong> {{ profile.get_gender_display|default:'N/A' }}
+              </p>
+              <p>
+                <strong>Address:</strong> {{ profile.address|default:'N/A' }}
+              </p>
+              <p>
+                <strong>City:</strong> {{ profile.city|default:'N/A' }}
+              </p>
+              <p>
+                <strong>State:</strong> {{ profile.state|default:'N/A' }}
+              </p>
+              <p>
+                <strong>Zipcode:</strong> {{ profile.zipcode|default:'N/A' }}
+              </p>
+            </div>
+            <div class="text-center mt-4">
+              <a href="{% url 'profile_edit' %}" class="btn text-white" style="background-color: #f15096;">Edit Profile</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

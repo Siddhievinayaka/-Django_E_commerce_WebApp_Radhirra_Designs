@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card" style="border-color: #f15096;">
+          <div class="card-header text-white" style="background-color: #f15096;">
+            <h3 class="text-center">Edit Profile</h3>
+          </div>
+          <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ form|crispy }}
+              <div class="d-grid gap-2 mt-3">
+                <button class="btn text-white" style="background-color: #f15096;" type="submit">Update</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

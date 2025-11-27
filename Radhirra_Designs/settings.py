@@ -5,8 +5,12 @@ Django settings for Radhirra_Designs project.
 from pathlib import Path
 import os
 import dj_database_url
-
+import cloudinary
+import cloudinary_storage
 import mimetypes
+from dotenv import load_dotenv
+
+load_dotenv()
 
 mimetypes.add_type("text/css", ".css", True)
 
@@ -20,7 +24,6 @@ SECRET_KEY = os.environ.get(
     "django-insecure-7agyh2+egfz%l^o+-4=ht$ixcw*bdhx^hq)ogy-=qrk++)dpgq",
 )
 
-# Debug should be OFF on Render
 DEBUG = os.environ.get("RENDER", "") != "true"
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
@@ -44,9 +47,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Your apps
     "Radhirra",
-    "cloudinary",  # Add this line
-    "cloudinary_storage",  # Add this line
+    "users",
+    # Cloudinary
+    "cloudinary",
+    "cloudinary_storage",
+    # Forms
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
 
 
@@ -55,7 +64,7 @@ INSTALLED_APPS = [
 # -----------------------------
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # REQUIRED FOR STATIC FILES ON RENDER
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -126,42 +135,54 @@ USE_TZ = True
 # STATIC & MEDIA FILES
 # -----------------------------
 
-# URL path for browser
 STATIC_URL = "/static/"
-
-# Where collected static files will be stored on Render
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-# Your custom static folder (CSS, JS, images, etc.)
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-# Whitenoise static file storage
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Cloudinary Configuration for Media Files
+
+# -----------------------------
+# CLOUDINARY CONFIG
+# -----------------------------
 CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME")
 CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY")
 CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET")
 
-# Media (uploads)
-MEDIA_URL = "/media/"  # Keep this for local development
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Keep this for local development
+# Initialize Cloudinary (IMPORTANT)
+cloudinary.config(
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
+    secure=True,
+)
 
-# Use Cloudinary for media storage in production (e.g., on Render)
-if not DEBUG:  # Assuming DEBUG is False in production
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": CLOUDINARY_CLOUD_NAME,
-        "API_KEY": CLOUDINARY_API_KEY,
-        "API_SECRET": CLOUDINARY_API_SECRET,
-    }
-    # Cloudinary's MEDIA_URL will be automatically handled by django-cloudinary-storage
-    # You might still need MEDIA_URL for local development, but Cloudinary will handle it in production.
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": CLOUDINARY_CLOUD_NAME,
+    "API_KEY": CLOUDINARY_API_KEY,
+    "API_SECRET": CLOUDINARY_API_SECRET,
+}
 
 
 # -----------------------------
-# DEFAULT PRIMARY KEY
+# AUTH MODEL
+# -----------------------------
+AUTH_USER_MODEL = "users.CustomUser"
+
+
+# -----------------------------
+# CRISPY FORMS
+# -----------------------------
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+
+# -----------------------------
+# DEFAULT PK
 # -----------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

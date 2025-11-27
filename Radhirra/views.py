@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect
-from .models import Customer, Order, OrderItem, Product, ShippingAddress
-from .form import CustomerForm
-from django.contrib.auth.models import User
+from .models import Order, OrderItem, Product, ShippingAddress  # Removed Customer
+
+# from .form import CustomerForm # This form is no longer needed here
+from django.contrib.auth.models import (
+    User,
+)  # This might not be needed if using CustomUser directly
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -9,6 +12,7 @@ from django.db.models import Q, Case, When, Value, IntegerField, F
 import json
 import datetime
 from Radhirra.utils import cookieCart, cartData, guestOrder
+from .models import Cart, CartItem, Product
 
 
 # Create your views here.
@@ -27,58 +31,10 @@ def index(request):
     return render(request, "index.html", context)
 
 
-def register_customer(request):
-    form = CustomerForm()
-    if request.method == "POST":
-        form = CustomerForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Create a new User instance
-            user = User.objects.create_user(
-                username=form.cleaned_data["email"],
-                email=form.cleaned_data["email"],
-                password=form.cleaned_data["password"],
-            )
-            user.save()
-
-            # Save the Customer instance and link it to the User
-            customer = form.save(commit=False)
-            customer.user = user
-            customer.save()
-
-            return redirect("login_user")
-
-    context = {"form": form}
-    return render(request, "forms/register_customer.html", context)
-
-
-def login_user(request):
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-
-        user = authenticate(request, username=email, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect("index")
-        else:
-            # Authentication failed
-            return render(
-                request, "forms/login.html", {"error_message": "Invalid credentials"}
-            )
-    return render(request, "forms/login.html")
-
-
-@login_required
-def profile(request):
-    customer = Customer.objects.get(user=request.user)
-    context = {"customer": customer}
-    return render(request, "profile.html", context)
-
-
-def logout_user(request):
-    logout(request)
-    return redirect("index")
+# Removed register_customer view - now handled by users app
+# Removed login_user view - now handled by users app
+# Removed profile view - now handled by users app
+# Removed logout_user view - now handled by users app
 
 
 def all_products(request):
@@ -99,12 +55,36 @@ def all_products(request):
         qs = qs.filter(q_obj)
 
         relevance = (
-            Case(When(name__icontains=q, then=Value(3)), default=Value(0), output_field=IntegerField())
-            + Case(When(sku__icontains=q, then=Value(3)), default=Value(0), output_field=IntegerField())
-            + Case(When(description__icontains=q, then=Value(2)), default=Value(0), output_field=IntegerField())
-            + Case(When(material__icontains=q, then=Value(1)), default=Value(0), output_field=IntegerField())
-            + Case(When(specifications__icontains=q, then=Value(1)), default=Value(0), output_field=IntegerField())
-            + Case(When(seller_information__icontains=q, then=Value(1)), default=Value(0), output_field=IntegerField())
+            Case(
+                When(name__icontains=q, then=Value(3)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+            + Case(
+                When(sku__icontains=q, then=Value(3)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+            + Case(
+                When(description__icontains=q, then=Value(2)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+            + Case(
+                When(material__icontains=q, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+            + Case(
+                When(specifications__icontains=q, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
+            + Case(
+                When(seller_information__icontains=q, then=Value(1)),
+                default=Value(0),
+                output_field=IntegerField(),
+            )
         )
         qs = qs.annotate(relevance=relevance)
 
@@ -162,9 +142,12 @@ def updateItem(request):
     productId = data["productId"]
     action = data["action"]
 
-    customer = request.user.customer
+    # Changed from customer = request.user.customer to user = request.user
+    user = request.user
     product = Product.objects.get(id=productId)
-    order, created = Order.objects.get_or_create(customer=customer, complete=False)
+    order, created = Order.objects.get_or_create(
+        user=user, complete=False
+    )  # Changed customer=customer to user=user
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
 
     if action == "add":
@@ -186,10 +169,14 @@ def processOrder(request):
     data = json.loads(request.body)
 
     if request.user.is_authenticated:
-        customer = request.user.customer
-        order, created = Order.objects.get_or_create(customer=customer, complete=False)
+        # Changed from customer = request.user.customer to user = request.user
+        user = request.user
+        order, created = Order.objects.get_or_create(
+            user=user, complete=False
+        )  # Changed customer=customer to user=user
     else:
-        customer, order = guestOrder(request, data)
+        # guestOrder function might need to be updated to handle user instead of customer
+        user, order = guestOrder(request, data)  # This function might need review
 
     total = float(data["form"]["total"])
     order.transaction_id = transaction_id
@@ -200,7 +187,7 @@ def processOrder(request):
 
     if order.shipping == True:
         ShippingAddress.objects.create(
-            customer=customer,
+            user=user,  # Changed customer=customer to user=user
             order=order,
             address=data["shipping"]["address"],
             city=data["shipping"]["city"],
@@ -214,12 +201,73 @@ def search_suggest(request):
     q = request.GET.get("q", "").strip()
     if not q:
         return JsonResponse({"suggestions": []})
-    qs = (
-        Product.objects.filter(Q(name__icontains=q) | Q(sku__icontains=q))
-        .order_by("name")[:5]
-    )
-    data = [
-        {"id": p.id, "name": p.name, "sku": p.sku, "image": p.imageURL}
-        for p in qs
-    ]
+    qs = Product.objects.filter(Q(name__icontains=q) | Q(sku__icontains=q)).order_by(
+        "name"
+    )[:5]
+    data = [{"id": p.id, "name": p.name, "sku": p.sku, "image": p.imageURL} for p in qs]
     return JsonResponse({"suggestions": data})
+
+
+def get_cart(request):
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+    else:
+        if not request.session.session_key:
+            request.session.save()
+        cart, created = Cart.objects.get_or_create(
+            session_key=request.session.session_key
+        )
+    return cart
+
+
+def add_to_cart(request, product_id):
+    cart = get_cart(request)
+    product = get_object_or_404(Product, id=product_id)
+    item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+    if not created:
+        item.quantity += 1
+        item.save()
+    return redirect("cart_detail")
+
+
+def remove_from_cart(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id)
+    item.delete()
+    return redirect("cart_detail")
+
+
+def update_quantity(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id)
+    if request.method == "POST":
+        quantity = int(request.POST.get("quantity", 1))
+        item.quantity = quantity
+        item.save()
+    return redirect("cart_detail")
+
+
+def cart_detail(request):
+    cart = get_cart(request)
+    items = cart.items.select_related("product")
+    return render(request, "cart.html", {"cart": cart, "items": items})
+
+
+def move_session_cart_to_user_cart(request, user):
+    session_key = request.session.session_key
+    if not session_key:
+        return
+    try:
+        session_cart = Cart.objects.get(session_key=session_key, user__isnull=True)
+        user_cart, created = Cart.objects.get_or_create(user=user)
+        for item in session_cart.items.all():
+            user_item, created = CartItem.objects.get_or_create(
+                cart=user_cart, product=item.product
+            )
+            if not created:
+                user_item.quantity += item.quantity
+                user_item.save()
+            else:
+                user_item.quantity = item.quantity
+                user_item.save()
+        session_cart.delete()
+    except Cart.DoesNotExist:
+        pass

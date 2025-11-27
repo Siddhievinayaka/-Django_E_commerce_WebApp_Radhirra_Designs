@@ -1,31 +1,22 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings  # Import settings to get AUTH_USER_MODEL
+from cloudinary.models import CloudinaryField
 
 # Create your models here.
 
 
-class Customer(models.Model):
-    user = models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
-    name = models.CharField(max_length=200, null=True)
-    email = models.CharField(max_length=200, null=True)
-    contact_number = models.CharField(max_length=20, null=True, blank=True)
-    profile_pic = models.ImageField(
-        upload_to="profile_pics/",
-        default="profile_pics/default.png",
-        null=True,
-        blank=True,
-    )
+# Removed the Customer model as it's replaced by UserProfile in the 'users' app
+
+
+class Category(models.Model):  # New Category Model
+    name = models.CharField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200, unique=True)  # For clean URLs
+
+    class Meta:
+        verbose_name_plural = "Categories"  # Correct pluralization
 
     def __str__(self):
         return self.name
-
-    @property
-    def imageURL(self):
-        try:
-            url = self.profile_pic.url
-        except:
-            url = ""
-        return url
 
 
 class Product(models.Model):
@@ -37,6 +28,13 @@ class Product(models.Model):
         ("XXL", "XXL"),
     ]
 
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="products",
+    )  # Added category
     name = models.CharField(max_length=200)
     sku = models.CharField(max_length=50, unique=True, null=True, blank=True)
     regular_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -48,7 +46,9 @@ class Product(models.Model):
     material = models.CharField(max_length=100, null=True, blank=True)
     specifications = models.TextField(blank=True, null=True)
     seller_information = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to="products/", null=True, blank=True)
+    image = CloudinaryField(
+        "image", null=True, blank=True
+    )  # Changed to CloudinaryField
     digital = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self):
@@ -75,15 +75,19 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product, related_name="images", on_delete=models.CASCADE
     )
-    image = models.ImageField(upload_to="products/")
+    image = CloudinaryField("image")  # Changed to CloudinaryField
 
     def __str__(self):
         return f"Image for {self.product.name}"
 
+    @property
+    def thumbnail_url(self):
+        return self.image.build_url(width=200, height=200, crop="thumb")
+
 
 class Order(models.Model):
-    customer = models.ForeignKey(
-        Customer, on_delete=models.SET_NULL, null=True, blank=True
+    user = models.ForeignKey(  # Changed from customer to user
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
     )
     date_ordered = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False)
@@ -132,7 +136,9 @@ class OrderItem(models.Model):
 
 
 class ShippingAddress(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(  # Changed from customer to user
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
+    )
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
     address = models.CharField(max_length=200, null=False)
     city = models.CharField(max_length=200, null=False)
@@ -142,3 +148,23 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return self.address
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE
+    )
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Cart ({self.user or self.session_key})"
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"

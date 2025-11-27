@@ -11,6 +11,7 @@
       {% endblock %}
     </title>
     <link rel="icon" href="{% static 'companyImg/logo.png' %}" type="image/png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -45,8 +46,8 @@
         theme: {
           extend: {
             colors: {
-              primary: '#d8b4fe', // Soft purple/pink
-              secondary: '#a78bfa', // Medium purple
+              primary: '#f15096',
+              secondary: '#f2b4c4',
               'dark-bg': '#2a2145',
               'light-bg': '#3e306b',
               'text-main': '#f3e8ff',
@@ -83,6 +84,8 @@
       
       var user = '{{request.user}}'
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   </head>
   <body class="bg-gray-50 dark:bg-dark-bg text-gray-900 dark:text-text-main">
     {% include 'includes/_header.html' %}
