@@ -89,3 +89,14 @@ def guestOrder(request, data):
             product=product, order=order, quantity=item["quantity"]
         )
     return user, order
+
+
+def get_sections():
+    """
+    Returns a list of static sections for the homepage.
+    """
+    return [
+        "New Arrival",
+        "Only skirts",
+        "Lehenga Sets–Gopidresses",
+    ]

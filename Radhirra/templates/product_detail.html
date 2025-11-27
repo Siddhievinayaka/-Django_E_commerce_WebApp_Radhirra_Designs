@@ -8,14 +8,22 @@
       <div class="flex flex-row">
         <!-- Thumbnail Images -->
         <div class="flex flex-col space-y-2 mr-4">
-          <img src="{{ product.imageURL }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg shadow-md cursor-pointer thumbnail-image border-2 border-primary p-1">
+          {% if product.main_image %}
+          <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg shadow-md cursor-pointer thumbnail-image border-2 border-primary p-1">
+          {% endif %}
           {% for image in product.images.all %}
-          <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg shadow-md cursor-pointer thumbnail-image p-1">
+            {% if not image.is_main %}
+            <img src="{{ image.image.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg shadow-md cursor-pointer thumbnail-image p-1">
+            {% endif %}
           {% endfor %}
         </div>
         <!-- Main Image -->
         <div class="flex-1 h-96">
-          <img id="main-image" src="{{ product.imageURL }}" alt="{{ product.name }}" class="w-full h-full object-contain rounded-lg shadow-md">
+          {% if product.main_image %}
+          <img id="main-image" src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="w-full h-full object-contain rounded-lg shadow-md">
+          {% else %}
+          <img id="main-image" src="https://via.placeholder.com/400" alt="Placeholder for {{ product.name }}" class="w-full h-full object-contain rounded-lg shadow-md">
+          {% endif %}
         </div>
       </div>
 
@@ -118,8 +126,12 @@
       {% for recommended_product in recommended_products %}
       <div class="group relative product-card">
         <div class="product-card-img-container">
-          <img src="{{ recommended_product.imageURL }}" alt="{{ recommended_product.name }}" class="product-card-img">
-          <button data-product="{{product.id}}" data-action="add" class="update-cart absolute bottom-2 right-2 bg-primary text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+          {% if recommended_product.main_image %}
+          <img src="{{ recommended_product.main_image.image.url }}" alt="{{ recommended_product.name }}" class="product-card-img">
+          {% else %}
+          <img src="https://via.placeholder.com/400" alt="Placeholder for {{ recommended_product.name }}" class="product-card-img">
+          {% endif %}
+          <button data-product="{{ recommended_product.id }}" data-action="add" class="update-cart absolute bottom-2 right-2 bg-primary text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
@@ -139,4 +151,31 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  var user = '{{request.user}}';
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  var cart = JSON.parse(getCookie('cart'))
+  if(cart == undefined){
+    cart = {}
+    console.log('Cart was created!')
+    document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+  }
+</script>
 {% endblock %}

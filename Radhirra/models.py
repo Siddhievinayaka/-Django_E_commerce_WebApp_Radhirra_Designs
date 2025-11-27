@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings  # Import settings to get AUTH_USER_MODEL
 from cloudinary.models import CloudinaryField
+from django.utils.text import slugify
 
 # Create your models here.
 
@@ -9,11 +10,17 @@ from cloudinary.models import CloudinaryField
 
 
 class Category(models.Model):  # New Category Model
-    name = models.CharField(max_length=200, unique=True)
-    slug = models.SlugField(max_length=200, unique=True)  # For clean URLs
+    name = models.CharField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = "Categories"  # Correct pluralization
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -46,21 +53,13 @@ class Product(models.Model):
     material = models.CharField(max_length=100, null=True, blank=True)
     specifications = models.TextField(blank=True, null=True)
     seller_information = models.TextField(blank=True, null=True)
-    image = CloudinaryField(
-        "image", null=True, blank=True
-    )  # Changed to CloudinaryField
-    digital = models.BooleanField(default=False, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
     @property
-    def imageURL(self):
-        try:
-            url = self.image.url
-        except:
-            url = ""
-        return url
+    def main_image(self):
+        return self.images.filter(is_main=True).first()
 
     @property
     def discount_percentage(self):
@@ -75,7 +74,8 @@ class ProductImage(models.Model):
     product = models.ForeignKey(
         Product, related_name="images", on_delete=models.CASCADE
     )
-    image = CloudinaryField("image")  # Changed to CloudinaryField
+    image = CloudinaryField("image")
+    is_main = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Image for {self.product.name}"

@@ -1,0 +1,26 @@
+{% extends 'admin_dashboard/admin_base.html' %}
+
+{% block title %}
+  Dashboard Home
+{% endblock %}
+
+{% block content %}
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card text-white bg-primary mb-3">
+        <div class="card-header">Total Products</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ product_count }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-header">Total Categories</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ category_count }}</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

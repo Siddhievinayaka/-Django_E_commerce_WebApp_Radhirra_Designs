@@ -1,0 +1,29 @@
+{% extends 'admin_dashboard/admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Edit Product
+{% endblock %}
+
+{% block content %}
+  <h2>Edit Product: {{ product.name }}</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|crispy }}
+
+    <h3 class="mt-4">Product Images</h3>
+    {{ formset.management_form }}
+    {% for form in formset %}
+      <div class="row align-items-center">
+        <div class="col-md-8">{{ form|crispy }}</div>
+        {% if form.instance.pk and form.instance.image %}
+          <div class="col-md-4">
+            <img src="{{ form.instance.image.url }}" width="100" class="mt-2" />
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+  </form>
+{% endblock %}

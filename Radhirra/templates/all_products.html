@@ -9,7 +9,11 @@
         {% for product in products %}
           <div class="bg-white rounded-lg shadow-md overflow-hidden group">
             <div class="relative">
-              <img src="{{ product.imageURL }}" alt="{{ product.name }}" class="w-full h-64 object-contain" />
+              {% if product.main_image %}
+                <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="w-full h-64 object-contain" />
+              {% else %}
+                <img src="https://via.placeholder.com/400" alt="Placeholder for {{ product.name }}" class="w-full h-64 object-contain" />
+              {% endif %}
               <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <a href="{% url 'product_detail' product.id %}" class="bg-white text-gray-900 py-2 px-4 rounded-button font-semibold">Quick View</a>
               </div>
@@ -32,4 +36,31 @@
       </div>
     </div>
   </div>
+  <script type="text/javascript">
+    var user = '{{request.user}}'
+    
+    function getCookie(name) {
+      let cookieValue = null
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';')
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim()
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === name + '=') {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+            break
+          }
+        }
+      }
+      return cookieValue
+    }
+    const csrftoken = getCookie('csrftoken')
+    
+    var cart = JSON.parse(getCookie('cart'))
+    if (cart == undefined) {
+      cart = {}
+      console.log('Cart was created!')
+      document.cookie = 'cart=' + JSON.stringify(cart) + ';domain=;path=/'
+    }
+  </script>
 {% endblock %}

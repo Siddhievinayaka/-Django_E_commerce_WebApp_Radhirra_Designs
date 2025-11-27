@@ -1,0 +1,90 @@
+{% extends 'admin_dashboard/admin_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Add Product
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2 class="mb-4 text-pink">Add New Product</h2>
+
+    {% if form.errors or formset.errors %}
+      <div class="alert alert-danger" role="alert">
+        Please correct the following errors:<ul>
+          {% for field in form %}
+            {% for error in field.errors %}
+              <li>{{ field.label }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+          {% for form_image in formset %}
+            {% for field in form_image %}
+              {% for error in field.errors %}
+                <li>Image {{ forloop.parentloop.counter }}: {{ field.label }}: {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form_image.non_field_errors %}
+              <li>Image {{ forloop.counter }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+          {% for error in formset.non_form_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="card mb-3">
+        <div class="card-header bg-pink text-white">Product Details</div>
+        <div class="card-body">{{ form|crispy }}</div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header bg-pink text-white\">Product Images</div>
+        <div class="card-body">
+          <h5 class="card-title\">Product Images</h5>
+          {{ formset.management_form }}
+          <div id="image-formset-container">
+            {% for form in formset %}
+              <div class="mb-3 p-3 border rounded image-form">{{ form|crispy }}</div>
+            {% endfor %}
+          </div>
+          <div id="empty-form-template" style="display: none;">
+            <div class="mb-3 p-3 border rounded image-form">{{ formset.empty_form|crispy }}</div>
+          </div>
+          <button type="button" class="btn btn-outline-secondary" id="add-image-form">Add Another Image</button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-pink">Add Product</button>
+      <a href="{% url 'dashboard:product_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addImageBtn = document.getElementById('add-image-form');
+        const imageFormsetContainer = document.getElementById('image-formset-container');
+        const emptyFormTemplate = document.getElementById('empty-form-template').innerHTML;
+        const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+        
+        let formIdx = {{ formset.total_form_count }};
+
+        addImageBtn.addEventListener('click', function() {
+            const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, formIdx);
+            const newFormElement = document.createElement('div');
+            newFormElement.innerHTML = newFormHtml;
+            
+            imageFormsetContainer.appendChild(newFormElement.firstElementChild);
+            
+            formIdx++;
+            totalFormsInput.value = formIdx;
+        });
+    });
+</script>
+{% endblock %}

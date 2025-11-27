@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateUserOrder(productId, action) {
         console.log('User is logged in, sending data...');
 
-        const url = '/Radhirra/update_item/';
+        const url = '/update_item/';
 
         fetch(url, {
             method: 'POST',
