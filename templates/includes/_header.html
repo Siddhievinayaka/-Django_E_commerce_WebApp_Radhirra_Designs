@@ -35,13 +35,20 @@
         {% else %}
           <a href="{% url 'login' %}" class="hidden sm:inline text-sm font-medium text-gray-800 dark:text-text-main uppercase hover:text-primary">Login</a>
           <a href="{% url 'register' %}" class="hidden sm:inline text-sm font-medium text-gray-800 dark:text-text-main uppercase hover:text-primary">Register</a>
+          <a href="{% url 'login' %}" class="sm:hidden text-sm font-medium text-gray-800 dark:text-text-main uppercase hover:text-primary">Login</a>
         {% endif %}
-        <a href="{% url 'cart' %}" class="text-gray-800 dark:text-text-main">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-          </svg>
-        </a>
-        <p id="cart-total" style="margin: 0px;">{{ cartItems }}</p>
+        <div class="{% if not user.is_authenticated %}
+            hidden sm:flex
+          {% else %}
+            flex
+          {% endif %} items-center">
+          <a href="{% url 'cart' %}" class="text-gray-800 dark:text-text-main">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+          </a>
+          <p id="cart-total" class="ml-1" style="margin: 0px;">{{ cartItems }}</p>
+        </div>
       </div>
     </div>
     <nav class="hidden md:flex items-center justify-center gap-6 py-2">
@@ -50,13 +57,9 @@
       <div class="relative hs-dropdown">
         <button class="hs-dropdown-toggle text-sm font-medium text-gray-800 dark:text-text-main">Collections</button>
         <div class="hs-dropdown-menu hidden opacity-0 absolute mt-2 bg-white dark:bg-light-bg border rounded shadow-md p-2">
-          <a href="{% url 'all_products' %}?q=Autumn%20Florals" class="block px-3 py-1 text-sm">Autumn Florals</a>
-          <a href="{% url 'all_products' %}?q=Dabu%20Hand%20Block%20Print%202025" class="block px-3 py-1 text-sm">Dabu Hand Block Print 2025</a>
-          <a href="{% url 'all_products' %}?q=Summer%20Blooms%202025" class="block px-3 py-1 text-sm">Summer Blooms 2025</a>
-          <a href="{% url 'all_products' %}?q=Ajrakh%202025" class="block px-3 py-1 text-sm">Ajrakh 2025</a>
-          <a href="{% url 'all_products' %}?q=Dabu%20Hand%20Block%20Print%20Collection" class="block px-3 py-1 text-sm">Dabu Hand Block Print Collection</a>
-          <a href="{% url 'all_products' %}?q=Summer%20Blooms%202024" class="block px-3 py-1 text-sm">Summer Blooms 2024</a>
-          <a href="{% url 'all_products' %}?q=Cintamani" class="block px-3 py-1 text-sm">Cintamani</a>
+          {% for category in categories %}
+            <a href="{% url 'all_products' %}?q={{ category.name }}" class="block px-3 py-1 text-sm">{{ category.name }}</a>
+          {% endfor %}
         </div>
       </div>
       <div class="relative hs-dropdown">
@@ -68,16 +71,8 @@
           <a href="{% url 'all_products' %}?q=Petticoats" class="block px-3 py-1 text-sm">Petticoats</a>
         </div>
       </div>
-      <a href="{% url 'all_products' %}?q=Kids" class="text-sm font-medium text-gray-800 dark:text-text-main">Kids</a>
-      <a href="{% url 'all_products' %}?q=Men" class="text-sm font-medium text-gray-800 dark:text-text-main">Men</a>
-      <div class="relative hs-dropdown">
-        <button class="hs-dropdown-toggle text-sm font-medium text-gray-800 dark:text-text-main">Size Charts</button>
-        <div class="hs-dropdown-menu hidden opacity-0 absolute mt-2 bg-white dark:bg-light-bg border rounded shadow-md p-2">
-          <a href="{% url 'all_products' %}?q=Women%20Size%20Chart" class="block px-3 py-1 text-sm">Women</a>
-          <a href="{% url 'all_products' %}?q=Men%20Size%20Chart" class="block px-3 py-1 text-sm">Men</a>
-          <a href="{% url 'all_products' %}?q=Kids%20Size%20Chart" class="block px-3 py-1 text-sm">Kids</a>
-        </div>
-      </div>
+      {% comment %} <a href="{% url 'all_products' %}?q=Kids" class="text-sm font-medium text-gray-800 dark:text-text-main">Kids</a> {% endcomment %}
+      {% comment %} <a href="{% url 'all_products' %}?q=Men" class="text-sm font-medium text-gray-800 dark:text-text-main">Men</a> {% endcomment %}
       <a href="mailto:info@radhirra.com" class="text-sm font-medium text-gray-800 dark:text-text-main">Contact</a>
     </nav>
   </div>

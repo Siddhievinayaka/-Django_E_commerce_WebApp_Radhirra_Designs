@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from .models import Order, OrderItem, Product, ShippingAddress  # Removed Customer
+from django.shortcuts import get_object_or_404, render, redirect
+from .models import Order, OrderItem, Product, ShippingAddress, Category
 
 # from .form import CustomerForm # This form is no longer needed here
 from django.contrib.auth.models import (
@@ -21,12 +21,14 @@ def index(request):
     cartItems = data["cartItems"]
 
     products = Product.objects.all()
+    categories = Category.objects.all()
     context = {
         "products": products,
         "cartItems": cartItems,
         "autumn_products": products[:4],
         "summer_products": products[4:6],
         "ajrakh_products": products[6:10],
+        "categories": categories,
     }
     return render(request, "index.html", context)
 
@@ -41,6 +43,7 @@ def all_products(request):
     q = request.GET.get("q", "").strip()
     sort = request.GET.get("sort", "relevance")
     qs = Product.objects.all()
+    categories = Category.objects.all()
 
     if q:
         q_obj = (
@@ -51,6 +54,7 @@ def all_products(request):
             | Q(seller_information__icontains=q)
             | Q(sku__icontains=q)
             | Q(size__icontains=q)
+            | Q(category__name__icontains=q)
         )
         qs = qs.filter(q_obj)
 
@@ -104,7 +108,13 @@ def all_products(request):
         else:
             qs = qs.order_by("name")
 
-    context = {"products": qs, "query": q, "results_count": qs.count(), "sort": sort}
+    context = {
+        "products": qs,
+        "query": q,
+        "results_count": qs.count(),
+        "sort": sort,
+        "categories": categories,
+    }
     return render(request, "all_products.html", context)
 
 

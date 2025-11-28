@@ -47,22 +47,49 @@ document.addEventListener('DOMContentLoaded', function () {
     if (searchButton) searchButton.addEventListener('click', toggleSearch);
 
     // --- Custom Dropdown Function ---
-    const dropdownToggles = document.querySelectorAll('.hs-dropdown-toggle');
+    const dropdowns = document.querySelectorAll('.hs-dropdown');
 
-    dropdownToggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
-            const menu = toggle.nextElementSibling;
-            if (menu && menu.classList.contains('hs-dropdown-menu')) {
-                // Toggle the 'hidden' class to show/hide the dropdown
-                menu.classList.toggle('hidden');
+    // Function to close all dropdowns
+    function closeAllDropdowns() {
+        dropdowns.forEach(dropdown => {
+            const menu = dropdown.querySelector('.hs-dropdown-menu');
+            if (menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden', 'opacity-0');
+                menu.classList.remove('opacity-100');
+            }
+        });
+    }
 
-                // Toggle opacity for transition effect
+    dropdowns.forEach(dropdown => {
+        const toggle = dropdown.querySelector('.hs-dropdown-toggle');
+        const menu = dropdown.querySelector('.hs-dropdown-menu');
+
+        toggle.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the document click from firing immediately
+            const isHidden = menu.classList.contains('hidden');
+
+            // First, close all dropdowns.
+            closeAllDropdowns();
+
+            // If the clicked menu was hidden, show it.
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                // Use a small timeout to allow the CSS transition to apply
                 setTimeout(() => {
-                    menu.classList.toggle('opacity-0');
-                    menu.classList.toggle('opacity-100');
+                    menu.classList.remove('opacity-0');
+                    menu.classList.add('opacity-100');
                 }, 10);
             }
         });
+    });
+
+    // Add a listener to the document to close dropdowns when clicking outside
+    document.addEventListener('click', (event) => {
+        const isClickInsideDropdown = Array.from(dropdowns).some(d => d.contains(event.target));
+
+        if (!isClickInsideDropdown) {
+            closeAllDropdowns();
+        }
     });
 
     // --- Product Image Gallery ---
