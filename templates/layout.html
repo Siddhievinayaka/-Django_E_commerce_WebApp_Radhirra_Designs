@@ -98,6 +98,7 @@
 
     <main class="flex-grow">
       {% block content %}
+
       {% endblock %}
     </main>
 
@@ -105,8 +106,8 @@
       {% include 'includes/_footer.html' %}
     {% endif %}
 
-    <!-- ✅ FIXED ORDER -->
+    <!-- FIXED ORDER -->
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-    <script src="{% static 'js/main.js' %}" defer></script>
+    <script src="{% static 'js/main.js' %}?v=1.2" defer></script>
   </body>
 </html>
