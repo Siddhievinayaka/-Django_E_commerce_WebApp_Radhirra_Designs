@@ -12,7 +12,7 @@
             {% for item in items %}
               <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 py-4">
                 <div class="flex items-center w-2/5">
-                  <img class="h-24 w-24 object-contain rounded-lg mr-4" src="{{ item.product.imageURL }}" alt="{{ item.product.name }}" />
+                  <img class="h-24 w-24 object-contain rounded-lg mr-4" src="{{ item.product.main_image.image.url }}" alt="{{ item.product.name }}" />
                   <div>
                     <p class="font-semibold text-gray-800 dark:text-text-main">{{ item.product.name }}</p>
                     <p class="text-sm text-gray-600 dark:text-text-secondary">
@@ -61,7 +61,7 @@
             <span class="text-gray-800 dark:text-text-main">Subtotal</span>
             <span class="text-gray-800 dark:text-text-main">₹{{ order.get_cart_total|floatformat:2 }}</span>
           </div>
-          <a href="{% url 'checkout' %}" class="block text-center w-full bg-primary text-white rounded-lg py-3 mt-6 font-semibold hover:bg-opacity-90">Proceed to Checkout</a>
+          <a href="{% url 'checkout' %}" class="block text-center w-full text-white rounded-lg py-3 mt-6 font-semibold hover:bg-opacity-90" style="background-color: #9f77c9;">Proceed to Checkout</a>
         </div>
       </div>
     </div>

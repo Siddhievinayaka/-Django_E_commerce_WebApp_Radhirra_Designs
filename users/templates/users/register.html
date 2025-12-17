@@ -1,27 +1,100 @@
-{% extends 'layout.html' %}
-{% load crispy_forms_tags %}
+{% extends 'auth_layout.html' %}
+{% load static %}
+
+{% block title %}
+  Register - Radhirra Designs
+{% endblock %}
+
 {% block content %}
-  <div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <div class="card" style="border-color: #f15096;">
-          <div class="card-header text-white" style="background-color: #f15096;">
-            <h3 class="text-center">Join Today</h3>
-          </div>
-          <div class="card-body">
-            <form method="POST">
-              {% csrf_token %}
-              {{ form|crispy }}
-              <div class="d-grid gap-2">
-                <button class="btn text-white" style="background-color: #f15096;" type="submit">Sign Up</button>
-              </div>
-            </form>
-          </div>
-          <div class="card-footer text-center">
-            <small class="text-muted">Already Have An Account? <a href="{% url 'login' %}" style="color: #f15096;">Sign In</a></small>
-          </div>
-        </div>
+  <div class="w-full max-w-md p-8 space-y-6 bg-white dark:bg-light-bg rounded-lg">
+    <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-primary">Register Customer</h2>
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+
+      {# Username Field #}
+      <div>
+        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-text-secondary">Username*</label>
+        <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" class="w-full px-4 py-2 mt-2 bg-gray-100 dark:bg-dark-bg border border-gray-300 dark:border-secondary rounded-lg text-gray-900 dark:text-text-main focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-primary" placeholder="Enter your username" required value="{{ form.username.value|default_if_none:'' }}" />
+        {% if form.username.errors %}
+          <div class="text-red-500 text-sm mt-1">{{ form.username.errors }}</div>
+        {% endif %}
       </div>
-    </div>
+
+      {# Email Field #}
+      <div>
+        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-text-secondary">Email*</label>
+        <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="w-full px-4 py-2 mt-2 bg-gray-100 dark:bg-dark-bg border border-gray-300 dark:border-secondary rounded-lg text-gray-900 dark:text-text-main focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-primary" placeholder="Enter your email" required value="{{ form.email.value|default_if_none:'' }}" />
+        {% if form.email.errors %}
+          <div class="text-red-500 text-sm mt-1">{{ form.email.errors }}</div>
+        {% endif %}
+      </div>
+
+      {# Password Field #}
+      <div>
+        <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-text-secondary">Password*</label>
+        <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" class="w-full px-4 py-2 mt-2 bg-gray-100 dark:bg-dark-bg border border-gray-300 dark:border-secondary rounded-lg text-gray-900 dark:text-text-main focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-primary" placeholder="Enter your password" required />
+        {% if form.password.errors %}
+          <div class="text-red-500 text-sm mt-1">{{ form.password.errors }}</div>
+        {% endif %}
+      </div>
+
+      {# Confirm Password Field #}
+      <div>
+        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-text-secondary">Confirm Password*</label>
+        <input type="password" name="{{ form.password2.name }}" id="{{ form.password2.id_for_label }}" class="w-full px-4 py-2 mt-2 bg-gray-100 dark:bg-dark-bg border border-gray-300 dark:border-secondary rounded-lg text-gray-900 dark:text-text-main focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-primary" placeholder="Confirm your password" required />
+        {% if form.password2.errors %}
+          <div class="text-red-500 text-sm mt-1">{{ form.password2.errors }}</div>
+        {% endif %}
+      </div>
+
+      {% if form.non_field_errors %}
+        <div class="text-red-500 dark:text-red-400 text-sm">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div>
+        <button type="submit" class="w-full px-4 py-2 font-bold text-white dark:text-dark-bg dark:bg-primary rounded-lg hover:bg-gray-900 dark:hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-primary focus:ring-opacity-75" style="background-color: #9f77c9">Register</button>
+      </div>
+    </form>
+    <p class="text-sm text-center text-gray-500 dark:text-text-secondary">
+      Already have an account? <a href="{% url 'login' %}" class="font-medium text-gray-800 dark:text-primary hover:underline">Login</a>
+    </p>
   </div>
+  <style>
+    input[type='text'],
+    input[type='email'],
+    input[type='password'],
+    input[type='file'],
+    input[type='number'] {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      margin-top: 0.5rem;
+      border-radius: 0.5rem;
+      border-width: 1px;
+    }
+    .dark input[type='text'],
+    .dark input[type='email'],
+    .dark input[type='password'],
+    .dark input[type='file'],
+    .dark input[type='number'] {
+      background-color: #2a2145;
+      border-color: #a78bfa;
+      color: #f3e8ff;
+    }
+    input[type='text'],
+    input[type='email'],
+    input[type='password'],
+    input[type='file'],
+    input[type='number'] {
+      background-color: #f9fafb;
+      border-color: #d1d5db;
+      color: #111827;
+    }
+    input:focus {
+      outline: none;
+    }
+  </style>
 {% endblock %}

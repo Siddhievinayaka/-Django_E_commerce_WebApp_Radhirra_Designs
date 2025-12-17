@@ -183,4 +183,66 @@ document.addEventListener('DOMContentLoaded', function () {
                 location.reload();
             });
     }
+
+    const dropdownBtnss = document.querySelectorAll('.dropdown-btn');
+
+    dropdownBtnss.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const dropdownContainer = this.nextElementSibling;
+            const arrow = this.querySelector('svg:last-child');
+
+            if (dropdownContainer.classList.contains('hidden')) {
+                dropdownContainer.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                dropdownContainer.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        });
+    });
+
+    // --- Sidebar Dropdown ---
+    // if (sidebar) {
+    //     const dropdownBtns = sidebar.querySelectorAll('.dropdown-btn');
+    //     const dropdownContainers = sidebar.querySelectorAll('.dropdown-container');
+
+    //     dropdownBtns.forEach(btn => {
+    //         btn.addEventListener('click', function (event) {
+    //             event.stopPropagation();
+    //             const currentContainer = this.nextElementSibling;
+    //             const arrow = this.querySelector('svg:last-child');
+
+    //             // Close other dropdowns
+    //             dropdownContainers.forEach(container => {
+    //                 if (container !== currentContainer && !container.classList.contains('hidden')) {
+    //                     container.classList.add('hidden');
+    //                     const otherBtn = container.previousElementSibling;
+    //                     const otherArrow = otherBtn.querySelector('svg:last-child');
+    //                     otherArrow.classList.remove('rotate-180');
+    //                 }
+    //             });
+
+    //             // Toggle current dropdown
+    //             currentContainer.classList.toggle('hidden');
+    //             arrow.classList.toggle('rotate-180');
+    //         });
+    //     });
+    // }
+
+    // const sidebarDropdownBtns = document.querySelectorAll('.dropdown-btn');
+
+    // sidebarDropdownBtns.forEach(btn => {
+    //     btn.addEventListener('click', function () {
+    //         const dropdownContainer = this.nextElementSibling;
+    //         const arrow = this.querySelector('svg:last-child');
+
+    //         if (dropdownContainer.classList.contains('hidden')) {
+    //             dropdownContainer.classList.remove('hidden');
+    //             arrow.classList.add('rotate-180');
+    //         } else {
+    //             dropdownContainer.classList.add('hidden');
+    //             arrow.classList.remove('rotate-180');
+    //         }
+    //     });
+    // });
 });
