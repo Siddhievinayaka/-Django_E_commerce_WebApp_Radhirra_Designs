@@ -48,19 +48,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Header Scroll ---
     const header = document.getElementById('main-header');
-    let lastScrollTop = 0;
-
-    window.addEventListener('scroll', function () {
-        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
-            // Downscroll
-            header.style.transform = 'translateY(-74%)';
-        } else {
-            // Upscroll
-            header.style.transform = 'translateY(0)';
-        }
-        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
-    });
+    if (header) {
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', function () {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
+                // Downscroll
+                header.style.transform = 'translateY(-74%)';
+            } else {
+                // Upscroll
+                header.style.transform = 'translateY(0)';
+            }
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+        });
+    }
 
     // --- Custom Dropdown Function ---
     const dropdowns = document.querySelectorAll('.hs-dropdown');
@@ -201,20 +202,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- Hero Slider ---
-    const heroSlider = new Swiper('.hero-slider', {
-        loop: true,
-        effect: 'fade',
-        autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-        navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-        },
-    });
+    const heroSliderElement = document.querySelector('.hero-slider');
+    if (heroSliderElement) {
+        const heroSlider = new Swiper('.hero-slider', {
+            loop: true,
+            effect: 'fade',
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+    }
 });
