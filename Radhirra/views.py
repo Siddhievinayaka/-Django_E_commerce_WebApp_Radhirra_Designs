@@ -13,6 +13,9 @@ import json
 import datetime
 from Radhirra.utils import cookieCart, cartData, guestOrder
 from .models import Cart, CartItem, Product
+from django.contrib import messages
+from .form import CustomerRegistrationForm
+from django.contrib.auth import login
 
 
 # Create your views here.
@@ -281,3 +284,21 @@ def move_session_cart_to_user_cart(request, user):
         session_cart.delete()
     except Cart.DoesNotExist:
         pass
+
+
+def customer_register(request):
+    if request.method == "POST":
+        form = CustomerRegistrationForm(request.POST, request.FILES)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "Registration successful.")
+            return redirect("index")  # Redirect to a success page or homepage
+        else:
+            # Form is not valid, add a message for non-field errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = CustomerRegistrationForm()
+    return render(request, "forms/register_customer.html", {"form": form})

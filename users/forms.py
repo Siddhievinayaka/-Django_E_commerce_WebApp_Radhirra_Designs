@@ -4,13 +4,22 @@ from .models import CustomUser, UserProfile
 
 
 class UserRegisterForm(UserCreationForm):
-    class Meta(UserCreationForm.Meta):
+    email = forms.EmailField(required=True)
+
+    class Meta:
         model = CustomUser
-        fields = ("username", "email")
+        fields = ("username", "email", "password1", "password2")
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user
 
 
 class UserLoginForm(AuthenticationForm):
-    username = forms.EmailField(widget=forms.EmailInput(attrs={"autofocus": True}))
+    username = forms.CharField(label="Username or Email")
 
 
 class UserProfileUpdateForm(forms.ModelForm):
@@ -25,6 +34,3 @@ class UserProfileUpdateForm(forms.ModelForm):
             "state",
             "zipcode",
         ]
-        widgets = {
-            "profile_pic": forms.FileInput(),
-        }

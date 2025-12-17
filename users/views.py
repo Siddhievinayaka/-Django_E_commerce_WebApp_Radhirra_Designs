@@ -7,6 +7,9 @@ from .models import UserProfile
 
 
 def register_view(request):
+    if request.user.is_authenticated:
+        return redirect("profile")
+
     if request.method == "POST":
         form = UserRegisterForm(request.POST)
         if form.is_valid():
@@ -14,9 +17,11 @@ def register_view(request):
             login(request, user)
             messages.success(request, "Registration successful.")
             return redirect("profile")
-        messages.error(request, "Unsuccessful registration. Invalid information.")
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = UserRegisterForm()
+
     return render(request, "users/register.html", {"form": form})
 
 
@@ -24,44 +29,37 @@ def login_view(request):
     if request.method == "POST":
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            messages.info(request, f"You are now logged in as {user.email}.")
+            login(request, form.get_user())
             return redirect("profile")
-        else:
-            messages.error(request, "Invalid email or password.")
+        messages.error(request, "Invalid credentials.")
     else:
         form = UserLoginForm()
+
     return render(request, "users/login.html", {"form": form})
 
 
 @login_required
 def logout_view(request):
     logout(request)
-    messages.info(request, "You have successfully logged out.")
-    return redirect("index")
+    return redirect("login")
 
 
 @login_required
 def profile_view(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-    context = {"profile": profile}
-    return render(request, "users/profile.html", context)
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    return render(request, "users/profile.html", {"profile": profile})
 
 
 @login_required
 def profile_update_view(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+
     if request.method == "POST":
         form = UserProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, "Your profile has been updated successfully!")
             return redirect("profile")
-        else:
-            messages.error(request, "Please correct the error below.")
     else:
         form = UserProfileUpdateForm(instance=profile)
 
-    context = {"form": form}
-    return render(request, "users/profile_update.html", context)
+    return render(request, "users/profile_update.html", {"form": form})
