@@ -127,3 +127,23 @@
     {% endif %}
   </div>
 </div>
+
+<script type="text/javascript">
+  const dropdownBtns = document.querySelectorAll('.dropdown-btn');
+
+    dropdownBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            const dropdownContainer = this.nextElementSibling;
+            const arrow = this.querySelector('svg:last-child');
+
+            if (dropdownContainer.classList.contains('hidden')) {
+                dropdownContainer.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                dropdownContainer.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
+            }
+        });
+    });
+
+  </script>

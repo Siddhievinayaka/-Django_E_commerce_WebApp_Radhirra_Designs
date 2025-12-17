@@ -13,9 +13,6 @@ import json
 import datetime
 from Radhirra.utils import cookieCart, cartData, guestOrder
 from .models import Cart, CartItem, Product
-from django.contrib import messages
-from .form import CustomerRegistrationForm
-from django.contrib.auth import login
 
 
 # Create your views here.
@@ -24,14 +21,12 @@ def index(request):
     cartItems = data["cartItems"]
 
     products = Product.objects.all()
-    categories = Category.objects.all()
     context = {
         "products": products,
         "cartItems": cartItems,
         "autumn_products": products[:4],
         "summer_products": products[4:6],
         "ajrakh_products": products[6:10],
-        "categories": categories,
     }
     return render(request, "index.html", context)
 
@@ -46,7 +41,6 @@ def all_products(request):
     q = request.GET.get("q", "").strip()
     sort = request.GET.get("sort", "relevance")
     qs = Product.objects.all()
-    categories = Category.objects.all()
 
     if q:
         q_obj = (
@@ -116,7 +110,6 @@ def all_products(request):
         "query": q,
         "results_count": qs.count(),
         "sort": sort,
-        "categories": categories,
     }
     return render(request, "all_products.html", context)
 
@@ -284,21 +277,3 @@ def move_session_cart_to_user_cart(request, user):
         session_cart.delete()
     except Cart.DoesNotExist:
         pass
-
-
-def customer_register(request):
-    if request.method == "POST":
-        form = CustomerRegistrationForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, "Registration successful.")
-            return redirect("index")  # Redirect to a success page or homepage
-        else:
-            # Form is not valid, add a message for non-field errors
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error}")
-    else:
-        form = CustomerRegistrationForm()
-    return render(request, "forms/register_customer.html", {"form": form})

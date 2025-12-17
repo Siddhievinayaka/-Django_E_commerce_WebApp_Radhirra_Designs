@@ -1,6 +1,6 @@
 {% load static %}
 <!-- Header -->
-<header class="bg-white dark:bg-light-bg shadow-lg sticky top-0 z-50">
+<header id="main-header" class="bg-white dark:bg-light-bg shadow-lg sticky top-0 z-50 transition-transform duration-300">
   <div class="container mx-auto px-4">
     <div class="flex justify-between items-center py-4">
       <!-- Left Side -->
@@ -41,7 +41,13 @@
             
             
             
+            
+            
+            
             hidden sm:flex
+
+
+
 
 
 
@@ -49,7 +55,13 @@
             
             
             
+            
+            
+            
             flex
+
+
+
 
 
 
@@ -97,13 +109,13 @@
       <form class="max-w-md mx-auto" action="{% url 'all_products' %}" method="GET">
         <label for="search" class="block mb-2.5 text-sm font-medium text-heading sr-only">Search</label>
         <div class="relative">
-          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+          {% comment %} <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
             <svg class="w-4 h-4 text-body" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
             </svg>
-          </div>
+          </div> {% endcomment %}
           <input type="search" id="search" name="q" class="block w-full p-3 ps-9 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs rounded placeholder:text-body" placeholder="Search" required />
-          <button type="submit" style="background-color: #d8b4fe; focus " class="absolute end-1.5 bottom-1.5 text-white bg-brand hover:bg-brand-strong box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 focus:outline-none">Search</button>
+          <button type="submit" style="background-color: #d8b4fe; line-height: 1.50rem; font-size: 1rem;bottom: 0.475rem; focus " class="absolute end-1.5 bottom-1.5 text-white bg-brand hover:bg-brand-strong box-border border border-transparent focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded text-xs px-3 py-1.5 focus:outline-none">Search</button>
         </div>
       </form>
     </div>

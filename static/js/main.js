@@ -46,6 +46,22 @@ document.addEventListener('DOMContentLoaded', function () {
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
     if (searchButton) searchButton.addEventListener('click', toggleSearch);
 
+    // --- Header Scroll ---
+    const header = document.getElementById('main-header');
+    let lastScrollTop = 0;
+
+    window.addEventListener('scroll', function () {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
+            // Downscroll
+            header.style.transform = 'translateY(-74%)';
+        } else {
+            // Upscroll
+            header.style.transform = 'translateY(0)';
+        }
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+    });
+
     // --- Custom Dropdown Function ---
     const dropdowns = document.querySelectorAll('.hs-dropdown');
 
@@ -184,65 +200,21 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 
-    const dropdownBtnss = document.querySelectorAll('.dropdown-btn');
-
-    dropdownBtnss.forEach(btn => {
-        btn.addEventListener('click', function () {
-            const dropdownContainer = this.nextElementSibling;
-            const arrow = this.querySelector('svg:last-child');
-
-            if (dropdownContainer.classList.contains('hidden')) {
-                dropdownContainer.classList.remove('hidden');
-                arrow.classList.add('rotate-180');
-            } else {
-                dropdownContainer.classList.add('hidden');
-                arrow.classList.remove('rotate-180');
-            }
-        });
+    // --- Hero Slider ---
+    const heroSlider = new Swiper('.hero-slider', {
+        loop: true,
+        effect: 'fade',
+        autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
     });
-
-    // --- Sidebar Dropdown ---
-    // if (sidebar) {
-    //     const dropdownBtns = sidebar.querySelectorAll('.dropdown-btn');
-    //     const dropdownContainers = sidebar.querySelectorAll('.dropdown-container');
-
-    //     dropdownBtns.forEach(btn => {
-    //         btn.addEventListener('click', function (event) {
-    //             event.stopPropagation();
-    //             const currentContainer = this.nextElementSibling;
-    //             const arrow = this.querySelector('svg:last-child');
-
-    //             // Close other dropdowns
-    //             dropdownContainers.forEach(container => {
-    //                 if (container !== currentContainer && !container.classList.contains('hidden')) {
-    //                     container.classList.add('hidden');
-    //                     const otherBtn = container.previousElementSibling;
-    //                     const otherArrow = otherBtn.querySelector('svg:last-child');
-    //                     otherArrow.classList.remove('rotate-180');
-    //                 }
-    //             });
-
-    //             // Toggle current dropdown
-    //             currentContainer.classList.toggle('hidden');
-    //             arrow.classList.toggle('rotate-180');
-    //         });
-    //     });
-    // }
-
-    // const sidebarDropdownBtns = document.querySelectorAll('.dropdown-btn');
-
-    // sidebarDropdownBtns.forEach(btn => {
-    //     btn.addEventListener('click', function () {
-    //         const dropdownContainer = this.nextElementSibling;
-    //         const arrow = this.querySelector('svg:last-child');
-
-    //         if (dropdownContainer.classList.contains('hidden')) {
-    //             dropdownContainer.classList.remove('hidden');
-    //             arrow.classList.add('rotate-180');
-    //         } else {
-    //             dropdownContainer.classList.add('hidden');
-    //             arrow.classList.remove('rotate-180');
-    //         }
-    //     });
-    // });
 });
