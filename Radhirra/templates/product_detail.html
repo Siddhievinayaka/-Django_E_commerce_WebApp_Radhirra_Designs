@@ -69,7 +69,7 @@
         </div>
 
         <div class="mt-10 flex rounded">
-          <button data-product="{{product.id}}" data-action="add" class="update-cart flex-1 rounded bg-primary border border-transparent rounded-button py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">Add to bag</button>
+          <button data-product="{{product.id}}" data-action="add" class="update-cart flex-1 rounded  border border-transparent rounded-button py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" style="background-color: #9f77c9;">Add to bag</button>
         </div>
         
         <div class="mt-10">
@@ -144,11 +144,21 @@
         <div class="product-card-content">
           <h3 class="product-card-title">
             <a href="{% url 'product_detail' recommended_product.id %}">
+              
               <span aria-hidden="true" class="absolute inset-0"></span>
               {{ recommended_product.name }}
             </a>
           </h3>
           <p class="product-card-price">₹{{ recommended_product.regular_price }}</p>
+          <div class="mt-2 flex items-center justify-between">
+                {% if recommended_product.sale_price %}
+                  <p class="text-lg font-bold " style="color: #9f77c9;">₹{{ recommended_product.sale_price }}</p>
+                  <p class="text-sm text-gray-500 line-through">₹{{ recommended_product.regular_price }}</p>
+                {% else %}
+                  <p class="text-lg font-bold text-primary">₹{{ product.regular_price }}</p>
+                {% endif %}
+                <button class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-primary transition-colors"><i class="ri-shopping-cart-line text-xl"></i></button>
+              </div>
         </div>
       </div>
       {% endfor %}
