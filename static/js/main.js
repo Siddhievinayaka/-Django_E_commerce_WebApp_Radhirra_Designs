@@ -50,23 +50,26 @@ document.addEventListener('DOMContentLoaded', function () {
     const header = document.getElementById('main-header');
     if (header) {
         let lastScrollTop = 0;
+        header.style.transition = 'transform 0.3s ease';
+
         window.addEventListener('scroll', function () {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
             if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
-                // Downscroll
+                // Downscroll (FIXED: px instead of %)
                 header.style.transform = 'translateY(-74%)';
             } else {
                 // Upscroll
                 header.style.transform = 'translateY(0)';
             }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // For Mobile or negative scrolling
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         });
     }
 
     // --- Custom Dropdown Function ---
     const dropdowns = document.querySelectorAll('.hs-dropdown');
 
-    // Function to close all dropdowns
     function closeAllDropdowns() {
         dropdowns.forEach(dropdown => {
             const menu = dropdown.querySelector('.hs-dropdown-menu');
@@ -81,17 +84,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const toggle = dropdown.querySelector('.hs-dropdown-toggle');
         const menu = dropdown.querySelector('.hs-dropdown-menu');
 
+        if (!toggle || !menu) return;
+
         toggle.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent the document click from firing immediately
+            event.stopPropagation();
             const isHidden = menu.classList.contains('hidden');
 
-            // First, close all dropdowns.
             closeAllDropdowns();
 
-            // If the clicked menu was hidden, show it.
             if (isHidden) {
                 menu.classList.remove('hidden');
-                // Use a small timeout to allow the CSS transition to apply
                 setTimeout(() => {
                     menu.classList.remove('opacity-0');
                     menu.classList.add('opacity-100');
@@ -100,13 +102,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Add a listener to the document to close dropdowns when clicking outside
     document.addEventListener('click', (event) => {
         const isClickInsideDropdown = Array.from(dropdowns).some(d => d.contains(event.target));
-
-        if (!isClickInsideDropdown) {
-            closeAllDropdowns();
-        }
+        if (!isClickInsideDropdown) closeAllDropdowns();
     });
 
     // --- Product Image Gallery ---
@@ -116,15 +114,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (mainImage && thumbnailImages.length > 0) {
         thumbnailImages.forEach(thumbnail => {
             thumbnail.addEventListener('click', () => {
-                // Set the main image src to the clicked thumbnail's src
                 mainImage.src = thumbnail.src;
-
-                // Remove active border from all thumbnails
-                thumbnailImages.forEach(img => {
-                    img.classList.remove('border-2', 'border-primary');
-                });
-
-                // Add active border to the clicked thumbnail
+                thumbnailImages.forEach(img => img.classList.remove('border-2', 'border-primary'));
                 thumbnail.classList.add('border-2', 'border-primary');
             });
         });
@@ -137,9 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateBtns[i].addEventListener('click', function () {
             const productId = this.dataset.product;
             const action = this.dataset.action;
-            console.log('productId:', productId, 'Action:', action);
 
-            console.log('USER:', user);
             if (user === 'AnonymousUser') {
                 addCookieItem(productId, action);
             } else {
@@ -149,62 +138,43 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function addCookieItem(productId, action) {
-        console.log('Not logged in..');
-
         if (action == 'add') {
             if (cart[productId] == undefined) {
-                cart[productId] = { 'quantity': 1 };
+                cart[productId] = { quantity: 1 };
             } else {
-                cart[productId]['quantity'] += 1;
+                cart[productId].quantity += 1;
             }
         }
 
         if (action == 'remove') {
-            cart[productId]['quantity'] -= 1;
-
-            if (cart[productId]['quantity'] <= 0) {
-                console.log('Remove Item');
-                delete cart[productId];
-            }
+            cart[productId].quantity -= 1;
+            if (cart[productId].quantity <= 0) delete cart[productId];
         }
 
-        if (action == 'remove_item') {
-            console.log('Remove Item');
-            delete cart[productId];
-        }
+        if (action == 'remove_item') delete cart[productId];
 
-        console.log('Cart:', cart);
         document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/";
         location.reload();
     }
 
-
     function updateUserOrder(productId, action) {
-        console.log('User is logged in, sending data...');
-
-        const url = '/update_item/';
-
-        fetch(url, {
+        fetch('/update_item/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken,
             },
-            body: JSON.stringify({ 'productId': productId, 'action': action })
+            body: JSON.stringify({ productId, action })
         })
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                console.log('Data:', data);
-                location.reload();
-            });
+            .then(res => res.json())
+            .then(() => location.reload());
     }
 
-    // --- Hero Slider ---
+    // --- Hero Slider (GUARDED) ---
     const heroSliderElement = document.querySelector('.hero-slider');
-    if (heroSliderElement) {
-        const heroSlider = new Swiper('.hero-slider', {
+
+    if (heroSliderElement && window.Swiper) {
+        new Swiper('.hero-slider', {
             loop: true,
             effect: 'fade',
             autoplay: {
