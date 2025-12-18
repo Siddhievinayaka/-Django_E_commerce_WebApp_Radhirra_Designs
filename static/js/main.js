@@ -47,25 +47,25 @@ document.addEventListener('DOMContentLoaded', function () {
     if (searchButton) searchButton.addEventListener('click', toggleSearch);
 
     // --- Header Scroll ---
-    const header = document.getElementById('main-header');
-    if (header) {
-        let lastScrollTop = 0;
-        header.style.transition = 'transform 0.3s ease';
+    // const header = document.getElementById('main-header');
+    // if (header) {
+    //     let lastScrollTop = 0;
+    //     header.style.transition = 'transform 0.3s ease';
 
-        window.addEventListener('scroll', function () {
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    //     window.addEventListener('scroll', function () {
+    //         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-            if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
-                // Downscroll (FIXED: px instead of %)
-                header.style.transform = 'translateY(-74%)';
-            } else {
-                // Upscroll
-                header.style.transform = 'translateY(0)';
-            }
+    //         if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
+    //             // Downscroll (FIXED: px instead of %)
+    //             header.style.transform = 'translateY(-74%)';
+    //         } else {
+    //             // Upscroll
+    //             header.style.transform = 'translateY(0)';
+    //         }
 
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        });
-    }
+    //         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    //     });
+    // }
 
     // --- Custom Dropdown Function ---
     const dropdowns = document.querySelectorAll('.hs-dropdown');

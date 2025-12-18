@@ -181,6 +181,13 @@
     opacity: 1 !important;
 }
 
+header {
+    transition: transform 0.3s ease-in-out;
+    position: fixed;
+    width: 100%;
+    z-index: 50;
+}
+
 .header-scrolled {
     transform: translateY(-74%);
 }
