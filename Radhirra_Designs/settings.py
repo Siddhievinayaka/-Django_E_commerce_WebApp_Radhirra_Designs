@@ -102,9 +102,20 @@ WSGI_APPLICATION = "Radhirra_Designs.wsgi.application"
 # -----------------------------
 # DATABASE (RENDER POSTGRES)
 # -----------------------------
+# DATABASES = {
+#     "default": dj_database_url.parse(
+#         "postgresql://rameshwari:do4tuozi4MD7Drvv9LWa2aSazM17zPke@dpg-d4i573umcj7s73cd7nu0-a.oregon-postgres.render.com/radhirra",
+#         conn_max_age=600,
+#         ssl_require=True,
+#     )
+# }
+
+# New Supabase PostgreSQL configuration
+# Ensure you set the DATABASE_URL environment variable with your Supabase connection string.
+# Example: DATABASE_URL="postgresql://user:password@host:port/database_name"
 DATABASES = {
     "default": dj_database_url.parse(
-        "postgresql://rameshwari:do4tuozi4MD7Drvv9LWa2aSazM17zPke@dpg-d4i573umcj7s73cd7nu0-a.oregon-postgres.render.com/radhirra",
+        os.environ.get("DATABASE_URL"),
         conn_max_age=600,
         ssl_require=True,
     )
