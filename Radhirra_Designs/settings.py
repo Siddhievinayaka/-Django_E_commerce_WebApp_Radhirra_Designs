@@ -104,7 +104,7 @@ WSGI_APPLICATION = "Radhirra_Designs.wsgi.application"
 # -----------------------------
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://postgres:vectratechhs@1@db.satzaiimlnpjhhmgbcez.supabase.co:5432/postgres"
+    "postgresql://postgres.satzaiimlnpjhhmgbcezvectratechhs@1@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres"
 )
 
 DATABASES = {
@@ -138,6 +138,20 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
+
+
+# -----------------------------
+# SESSION CONFIGURATION
+# -----------------------------
+# Use cache-based sessions to avoid database dependency issues
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 
 
 # -----------------------------

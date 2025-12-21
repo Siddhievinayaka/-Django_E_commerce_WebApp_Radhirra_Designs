@@ -12,10 +12,15 @@ services:
       - key: RENDER
         value: true
       - key: DATABASE_URL
-        value: postgresql://postgres:vectratechhs@1@db.satzaiimlnpjhhmgbcez.supabase.co:5432/postgres?sslmode=require
+        value: postgresql://postgres.satzaiimlnpjhhmgbcezvectratechhs@1@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres
       - key: CLOUDINARY_CLOUD_NAME
         value: ddlx2h9hr
       - key: CLOUDINARY_API_KEY
         value: 999271691163949
       - key: CLOUDINARY_API_SECRET
         value: KNWUBus3MXZo5DWaOL5bcjczep0
+
+databases:
+  - name: radhirra-db
+    databaseName: radhirra
+    user: radhirra_user
