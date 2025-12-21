@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: radhirra-designs
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn Radhirra_Designs.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: RENDER
+        value: true
+      - key: DATABASE_URL
+        value: postgresql://postgres:vectratechhs@1@db.satzaiimlnpjhhmgbcez.supabase.co:5432/postgres
+      - key: CLOUDINARY_CLOUD_NAME
+        value: ddlx2h9hr
+      - key: CLOUDINARY_API_KEY
+        value: 999271691163949
+      - key: CLOUDINARY_API_SECRET
+        value: KNWUBus3MXZo5DWaOL5bcjczep0

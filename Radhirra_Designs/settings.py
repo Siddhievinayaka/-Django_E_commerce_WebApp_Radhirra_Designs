@@ -100,22 +100,16 @@ WSGI_APPLICATION = "Radhirra_Designs.wsgi.application"
 
 
 # -----------------------------
-# DATABASE (RENDER POSTGRES)
+# DATABASE CONFIGURATION
 # -----------------------------
-# DATABASES = {
-#     "default": dj_database_url.parse(
-#         "postgresql://rameshwari:do4tuozi4MD7Drvv9LWa2aSazM17zPke@dpg-d4i573umcj7s73cd7nu0-a.oregon-postgres.render.com/radhirra",
-#         conn_max_age=600,
-#         ssl_require=True,
-#     )
-# }
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://postgres:vectratechhs@1@db.satzaiimlnpjhhmgbcez.supabase.co:5432/postgres"
+)
 
-# New Supabase PostgreSQL configuration
-# Ensure you set the DATABASE_URL environment variable with your Supabase connection string.
-# Example: DATABASE_URL="postgresql://user:password@host:port/database_name"
 DATABASES = {
     "default": dj_database_url.parse(
-        "postgresql://postgres:vectratechhs@1@db.satzaiimlnpjhhmgbcez.supabase.co:5432/postgres",
+        DATABASE_URL,
         conn_max_age=600,
         ssl_require=True,
     )
@@ -204,3 +198,26 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "dashboard:admin_login"
+
+# -----------------------------
+# LOGGING CONFIGURATION
+# -----------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
+    },
+}
