@@ -17,17 +17,27 @@ from .models import Cart, CartItem, Product
 
 # Create your views here.
 def index(request):
-    data = cartData(request)
-    cartItems = data["cartItems"]
+    try:
+        data = cartData(request)
+        cartItems = data["cartItems"]
 
-    products = Product.objects.all()
-    context = {
-        "products": products,
-        "cartItems": cartItems,
-        "autumn_products": products[:4],
-        "summer_products": products[4:6],
-        "ajrakh_products": products[6:10],
-    }
+        products = Product.objects.all()
+        context = {
+            "products": products,
+            "cartItems": cartItems,
+            "autumn_products": products[:4],
+            "summer_products": products[4:6],
+            "ajrakh_products": products[6:10],
+        }
+    except Exception:
+        # Fallback when database is unavailable
+        context = {
+            "products": [],
+            "cartItems": 0,
+            "autumn_products": [],
+            "summer_products": [],
+            "ajrakh_products": [],
+        }
     return render(request, "index.html", context)
 
 

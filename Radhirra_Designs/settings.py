@@ -103,8 +103,7 @@ WSGI_APPLICATION = "Radhirra_Designs.wsgi.application"
 # DATABASE CONFIGURATION
 # -----------------------------
 DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://rameshwari:do4tuozi4MD7Drvv9LWa2aSazM17zPke@dpg-d4i573umcj7s73cd7nu0-a.oregon-postgres.render.com/radhirra"
+    "DATABASE_URL"
 )
 
 DATABASES = {
