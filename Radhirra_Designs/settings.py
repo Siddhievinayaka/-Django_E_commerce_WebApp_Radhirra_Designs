@@ -104,7 +104,7 @@ WSGI_APPLICATION = "Radhirra_Designs.wsgi.application"
 # -----------------------------
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://postgres.satzaiimlnpjhhmgbcezvectratechhs@1@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres"
+    "postgresql://rameshwari:do4tuozi4MD7Drvv9LWa2aSazM17zPke@dpg-d4i573umcj7s73cd7nu0-a.oregon-postgres.render.com/radhirra"
 )
 
 DATABASES = {
