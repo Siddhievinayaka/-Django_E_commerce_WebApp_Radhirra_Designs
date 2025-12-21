@@ -115,7 +115,7 @@ WSGI_APPLICATION = "Radhirra_Designs.wsgi.application"
 # Example: DATABASE_URL="postgresql://user:password@host:port/database_name"
 DATABASES = {
     "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
+        "postgresql://postgres:vectratechhs@1@db.satzaiimlnpjhhmgbcez.supabase.co:5432/postgres",
         conn_max_age=600,
         ssl_require=True,
     )

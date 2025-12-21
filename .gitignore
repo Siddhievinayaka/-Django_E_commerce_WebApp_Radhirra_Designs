@@ -65,6 +65,7 @@ media/
 # Environment variables
 .venv
 env/
+.env/
 venv/
 ENV/
 env.bak/

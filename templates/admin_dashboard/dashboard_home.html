@@ -1,24 +1,35 @@
 {% extends 'admin_dashboard/admin_base.html' %}
 
 {% block title %}
-  Dashboard Home
+  Dashboard
 {% endblock %}
 
 {% block content %}
-  <div class="row mt-4">
-    <div class="col-md-6">
-      <div class="card text-white bg-primary mb-3">
-        <div class="card-header">Total Products</div>
-        <div class="card-body">
-          <h5 class="card-title">{{ product_count }}</h5>
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-3">
+      <div class="matx-card">
+        <div class="d-flex align-items-center">
+          <div class="bg-indigo text-white rounded-circle p-3 me-3" style="background-color:#4f46e5">
+            <i class="bi bi-box fs-5"></i>
+          </div>
+          <div>
+            <p class="text-muted mb-1">Products</p>
+            <h4 class="fw-bold mb-0">{{ product_count }}</h4>
+          </div>
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card text-white bg-success mb-3">
-        <div class="card-header">Total Categories</div>
-        <div class="card-body">
-          <h5 class="card-title">{{ category_count }}</h5>
+
+    <div class="col-md-6 col-lg-3">
+      <div class="matx-card">
+        <div class="d-flex align-items-center">
+          <div class="rounded-circle p-3 me-3" style="background-color:#16a34a;color:white">
+            <i class="bi bi-tags fs-5"></i>
+          </div>
+          <div>
+            <p class="text-muted mb-1">Categories</p>
+            <h4 class="fw-bold mb-0">{{ category_count }}</h4>
+          </div>
         </div>
       </div>
     </div>
