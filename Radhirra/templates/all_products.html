@@ -3,7 +3,37 @@
 {% block content %}
   <div class="bg-gray-50">
     <div class="container mx-auto px-4 py-16">
-      <h2 class="text-3xl font-bold tracking-tight text-gray-900 text-center mb-10">All Products</h2>
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900">All Products</h2>
+        {% if query %}
+          <p class="text-gray-600 mt-2">Search results for "<span class="font-semibold">{{ query }}</span>" - {{ results_count }} product{{ results_count|pluralize }} found</p>
+        {% else %}
+          <p class="text-gray-600 mt-2">Showing all {{ results_count }} product{{ results_count|pluralize }}</p>
+        {% endif %}
+      </div>
+
+      <!-- Search and Sort Controls -->
+      <div class="mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
+        <!-- Search Form -->
+        <form method="GET" class="flex gap-2 w-full sm:w-auto">
+          <input type="search" name="q" value="{{ query }}" placeholder="Search products..." class="flex-1 sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">Search</button>
+          {% if query %}
+            <a href="{% url 'all_products' %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">Clear</a>
+          {% endif %}
+        </form>
+        
+        <!-- Sort Options -->
+        <form method="GET" class="flex gap-2 items-center">
+          {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
+          <label for="sort" class="text-sm font-medium text-gray-700">Sort by:</label>
+          <select name="sort" id="sort" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Relevance</option>
+            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          </select>
+        </form>
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {% for product in products %}
@@ -20,17 +50,32 @@
             </div>
             <div class="p-4">
               <h3 class="text-lg font-semibold text-gray-900">{{ product.name }}</h3>
-              <p class="text-sm text-gray-500 mt-1">{{ product.sku }}</p>
+              <div class="flex items-center justify-between mt-1">
+                <p class="text-sm text-gray-500">{{ product.sku }}</p>
+                {% if product.category %}
+                  <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{{ product.category.name }}</span>
+                {% endif %}
+              </div>
               <div class="mt-2 flex items-center justify-between">
                 {% if product.sale_price %}
-                  <p class="text-lg font-bold mr-2" style="color: #9f77c9;">₹{{ product.sale_price }}</p>
-                  <p class="text-sm text-gray-500 line-through">₹{{ product.regular_price }}</p>
+                  <div class="flex items-center gap-2">
+                    <p class="text-lg font-bold" style="color: #9f77c9;">₹{{ product.sale_price }}</p>
+                    <p class="text-sm text-gray-500 line-through">₹{{ product.regular_price }}</p>
+                  </div>
                 {% else %}
                   <p class="text-lg font-bold" style="color: #9f77c9;">₹{{ product.regular_price }}</p>
                 {% endif %}
                 <button class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-primary transition-colors"><i class="ri-shopping-cart-line text-xl"></i></button>
               </div>
             </div>
+          </div>
+        {% empty %}
+          <div class="col-span-full text-center py-12">
+            <p class="text-gray-500 text-lg">No products found{% if query %} for "{{ query }}"{% endif %}.</p>
+            {% if query %}
+              <p class="text-gray-400 mt-2">Try searching for different keywords like product names, categories, or price ranges.</p>
+              <a href="{% url 'all_products' %}" class="inline-block mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">View All Products</a>
+            {% endif %}
           </div>
         {% endfor %}
       </div>

@@ -102,9 +102,7 @@ WSGI_APPLICATION = "Radhirra_Designs.wsgi.application"
 # -----------------------------
 # DATABASE CONFIGURATION
 # -----------------------------
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL"
-)
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 DATABASES = {
     "default": dj_database_url.parse(

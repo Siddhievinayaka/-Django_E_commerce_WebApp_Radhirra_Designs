@@ -50,76 +50,53 @@ def index(request):
 def all_products(request):
     q = request.GET.get("q", "").strip()
     sort = request.GET.get("sort", "relevance")
-    qs = Product.objects.all()
+    qs = Product.objects.select_related('category').prefetch_related('images')
 
     if q:
-        q_obj = (
-            Q(name__icontains=q)
-            | Q(description__icontains=q)
-            | Q(material__icontains=q)
-            | Q(specifications__icontains=q)
-            | Q(seller_information__icontains=q)
-            | Q(sku__icontains=q)
-            | Q(size__icontains=q)
-            | Q(category__name__icontains=q)
-        )
-        qs = qs.filter(q_obj)
-
-        relevance = (
-            Case(
-                When(name__icontains=q, then=Value(3)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-            + Case(
-                When(sku__icontains=q, then=Value(3)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-            + Case(
-                When(description__icontains=q, then=Value(2)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-            + Case(
-                When(material__icontains=q, then=Value(1)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-            + Case(
-                When(specifications__icontains=q, then=Value(1)),
-                default=Value(0),
-                output_field=IntegerField(),
-            )
-            + Case(
-                When(seller_information__icontains=q, then=Value(1)),
-                default=Value(0),
+        import re
+        price_match = re.search(r'\d+', q)
+        
+        q_obj = Q(name__icontains=q) | Q(category__name__icontains=q) | Q(sku__icontains=q)
+        
+        if price_match:
+            price_value = float(price_match.group())
+            price_range = price_value * 0.2
+            q_obj |= Q(regular_price__range=(price_value - price_range, price_value + price_range)) | Q(sale_price__range=(price_value - price_range, price_value + price_range))
+        
+        qs = qs.filter(q_obj).annotate(
+            relevance=Case(
+                When(name__iexact=q, then=Value(5)),
+                When(sku__iexact=q, then=Value(5)),
+                When(category__name__iexact=q, then=Value(4)),
+                When(name__istartswith=q, then=Value(3)),
+                When(category__name__istartswith=q, then=Value(3)),
+                default=Value(1),
                 output_field=IntegerField(),
             )
         )
-        qs = qs.annotate(relevance=relevance)
 
-    effective_price = Case(
-        When(sale_price__isnull=False, then=F("sale_price")),
-        default=F("regular_price"),
+    qs = qs.annotate(
+        effective_price=Case(
+            When(sale_price__isnull=False, then=F("sale_price")),
+            default=F("regular_price"),
+        )
     )
-    qs = qs.annotate(effective_price=effective_price)
 
     if sort == "price_asc":
         qs = qs.order_by("effective_price")
     elif sort == "price_desc":
         qs = qs.order_by("-effective_price")
+    elif q:
+        qs = qs.order_by("-relevance", "name")
     else:
-        if q:
-            qs = qs.order_by("-relevance", "name")
-        else:
-            qs = qs.order_by("name")
+        qs = qs.order_by("name")
 
     context = {
         "products": qs,
         "query": q,
         "results_count": qs.count(),
         "sort": sort,
+        "categories": Category.objects.all(),
     }
     return render(request, "all_products.html", context)
 
@@ -215,12 +192,20 @@ def processOrder(request):
 
 def search_suggest(request):
     q = request.GET.get("q", "").strip()
-    if not q:
+    if not q or len(q) < 2:
         return JsonResponse({"suggestions": []})
-    qs = Product.objects.filter(Q(name__icontains=q) | Q(sku__icontains=q)).order_by(
-        "name"
-    )[:5]
-    data = [{"id": p.id, "name": p.name, "sku": p.sku, "image": p.imageURL} for p in qs]
+    
+    qs = Product.objects.filter(
+        Q(name__istartswith=q) | Q(category__name__istartswith=q)
+    ).select_related('category')[:5]
+    
+    data = [{
+        "id": p.id, 
+        "name": p.name, 
+        "category": p.category.name if p.category else "",
+        "price": str(p.sale_price if p.sale_price else p.regular_price)
+    } for p in qs]
+    
     return JsonResponse({"suggestions": data})
 
 
@@ -287,3 +272,11 @@ def move_session_cart_to_user_cart(request, user):
         session_cart.delete()
     except Cart.DoesNotExist:
         pass
+
+
+def contact(request):
+    data = cartData(request)
+    cartItems = data["cartItems"]
+    
+    context = {"cartItems": cartItems}
+    return render(request, "contacts.html", context)

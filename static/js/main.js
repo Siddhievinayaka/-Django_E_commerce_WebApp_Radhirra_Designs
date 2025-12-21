@@ -32,12 +32,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 searchDropdown.classList.remove('hidden');
                 requestAnimationFrame(() => {
                     searchDropdown.classList.remove('opacity-0');
+                    // Focus on search input when dropdown opens
+                    const searchInput = document.getElementById('search');
+                    if (searchInput) searchInput.focus();
                 });
             } else {
                 searchDropdown.classList.add('opacity-0');
                 setTimeout(() => searchDropdown.classList.add('hidden'), 300);
             }
         }
+    }
+
+    // Enhanced search functionality
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            if (this.value.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    // Add live search suggestions here if needed
+                }, 300);
+            }
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            if (!this.value) {
+                this.placeholder = 'Try: "saree", "1000", "cotton"...';
+            }
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            this.placeholder = 'Search by name, price, or category...';
+        });
     }
 
     // --- Event Listeners ---

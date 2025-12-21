@@ -6,6 +6,15 @@
 {% endblock %}
 
 {% block content %}
+  <style>
+    .fade-up { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .hover-lift { transition: transform 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-5px); }
+    .btn-elegant { background: linear-gradient(135deg, #e4a8cc 0%, #8b5a8c 100%); transition: all 0.3s ease; }
+    .btn-elegant:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(228, 168, 204, 0.4); }
+  </style>
+  <!-- Hero Section -->
   <div class="swiper-container hero-slider">
     <div class="swiper-wrapper">
       <div class="swiper-slide">
@@ -76,44 +85,182 @@
     {% comment %} <div class="swiper-button-prev"></div> {% endcomment %}
   </div>
 
-  <div class="container mx-auto px-4 py-8" style="display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* align-content: center; */
-    justify-content: center;">
-    <h1 class="text-3xl font-bold text-center">Welcome to The Original Gopi Skirts</h1>
-    <p class="text-center mt-4">Discover our unique collection.</p>
-    <p class="text-center">Since 2021 Madhavi Devi Dasi has been designing and working with artisans in India.</p>
-    <p class="text-center">We designs cruelty free easy to wear clothing for any occasion.</p>
-    <div class="mt-8 text-center">
-      <a href="{% url 'all_products' %}" class="text-white font-bold py-2 px-4 rounded hover:bg-secondary" style="background-color: #e4a8cc;">Shop Now</a>
-    </div>
-  </div>
-  <section class="py-12">
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
-        <div class="border-4 border-dashed border-gray-200 dark:border-secondary rounded-lg h-96 flex items-center justify-center bg-white dark:bg-light-bg">
+  <!-- Brand Story -->
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-4 text-center fade-up">
+      <h2 class="text-4xl font-bold mb-6">The Original Gopi Skirts</h2>
+      <div class="max-w-4xl mx-auto">
+        <p class="text-lg text-gray-700 mb-6">Since 2021, Madhavi Devi Dasi has been collaborating with skilled artisans across India to create authentic, cruelty-free clothing that honors traditional craftsmanship while embracing modern comfort.</p>
+        <div class="grid md:grid-cols-3 gap-8 mt-12">
           <div class="text-center">
-            <p class="text-gray-500 dark:text-text-secondary text-xl">Jaya Jagannatha</p>
-            <p class="text-gray-500">No products found.</p>
+            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl">🌸</span>
+            </div>
+            <h3 class="font-semibold mb-2">Handcrafted Excellence</h3>
+            <p class="text-gray-600">Each piece is carefully crafted by skilled artisans using traditional techniques passed down through generations.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl">🌿</span>
+            </div>
+            <h3 class="font-semibold mb-2">Ethical & Sustainable</h3>
+            <p class="text-gray-600">Committed to cruelty-free practices and supporting local communities through fair trade partnerships.</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span class="text-2xl">✨</span>
+            </div>
+            <h3 class="font-semibold mb-2">Timeless Design</h3>
+            <p class="text-gray-600">Classic silhouettes with contemporary touches, perfect for any occasion from daily wear to special celebrations.</p>
           </div>
         </div>
-      </div>
-      <div class="p-6 bg-white dark:bg-light-bg border rounded-lg mt-6">
-        <div class="text-lg font-semibold">Secure Payments</div>
-        <p class="text-sm mt-2 text-gray-600">100% secure checkout</p>
       </div>
     </div>
   </section>
 
-  <section class="container mx-auto px-4 mt-12 mb-16">
-    <div class="bg-gradient-to-r from-light-bg to-dark-bg rounded-lg p-8 text-center">
-      <h3 class="text-2xl font-semibold text-white">Join Our Newsletter</h3>
-      <p class="text-sm text-text-secondary mt-2">Get updates on new arrivals and exclusive offers</p>
-      <form class="mt-6 max-w-md mx-auto flex gap-2" onsubmit="return false;">
-        <input type="email" class="flex-1 form-input" placeholder="Enter your email" />
-        <button class="btn-primary" type="button">Subscribe</button>
+  <!-- Product Categories -->
+  <section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center mb-12 fade-up">Shop by Collection</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift fade-up">
+          <div class="h-64 bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
+            <span class="text-6xl">👗</span>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">Traditional Gopi Skirts</h3>
+            <p class="text-gray-600 mb-4">Classic full-circle skirts in vibrant colors and traditional prints. Perfect for daily wear and spiritual practices.</p>
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-bold text-pink-600">From ₹1,299</span>
+              <a href="#" class="text-pink-600 hover:text-pink-800">View All →</a>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift fade-up">
+          <div class="h-64 bg-gradient-to-br from-yellow-200 to-orange-200 flex items-center justify-center">
+            <span class="text-6xl">🌺</span>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">Festive Collection</h3>
+            <p class="text-gray-600 mb-4">Elegant designs with intricate embroidery and rich fabrics for special occasions and celebrations.</p>
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-bold text-pink-600">From ₹2,499</span>
+              <a href="#" class="text-pink-600 hover:text-pink-800">View All →</a>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift fade-up">
+          <div class="h-64 bg-gradient-to-br from-blue-200 to-teal-200 flex items-center justify-center">
+            <span class="text-6xl">🌸</span>
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">Summer Essentials</h3>
+            <p class="text-gray-600 mb-4">Lightweight, breathable fabrics in soft pastels and floral prints for comfortable summer wear.</p>
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-bold text-pink-600">From ₹999</span>
+              <a href="#" class="text-pink-600 hover:text-pink-800">View All →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Customer Testimonials -->
+  <section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+      <h2 class="text-4xl font-bold text-center mb-12 fade-up">What Our Customers Say</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-gray-50 p-6 rounded-lg fade-up">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
+              <span class="text-xl">👩</span>
+            </div>
+            <div>
+              <h4 class="font-semibold">Priya Sharma</h4>
+              <div class="text-yellow-400">★★★★★</div>
+            </div>
+          </div>
+          <p class="text-gray-600">"The quality is exceptional! I've been wearing Radhirra skirts for over a year and they still look brand new. The comfort and elegance are unmatched."</p>
+        </div>
+        <div class="bg-gray-50 p-6 rounded-lg fade-up">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
+              <span class="text-xl">👩</span>
+            </div>
+            <div>
+              <h4 class="font-semibold">Sarah Johnson</h4>
+              <div class="text-yellow-400">★★★★★</div>
+            </div>
+          </div>
+          <p class="text-gray-600">"Perfect for my yoga practice and temple visits. The fabric is so comfortable and the designs are beautiful. Highly recommend!"</p>
+        </div>
+        <div class="bg-gray-50 p-6 rounded-lg fade-up">
+          <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
+              <span class="text-xl">👩</span>
+            </div>
+            <div>
+              <h4 class="font-semibold">Meera Patel</h4>
+              <div class="text-yellow-400">★★★★★</div>
+            </div>
+          </div>
+          <p class="text-gray-600">"Fast shipping and excellent customer service. The skirts fit perfectly and the colors are even more vibrant in person!"</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Badges -->
+  <section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="grid md:grid-cols-4 gap-8 text-center">
+        <div class="fade-up">
+          <div class="text-3xl mb-2">🚚</div>
+          <h3 class="font-semibold mb-1">Free Shipping</h3>
+          <p class="text-sm text-gray-600">On orders over ₹1,999</p>
+        </div>
+        <div class="fade-up">
+          <div class="text-3xl mb-2">🔒</div>
+          <h3 class="font-semibold mb-1">Secure Payment</h3>
+          <p class="text-sm text-gray-600">SSL encrypted checkout</p>
+        </div>
+        <div class="fade-up">
+          <div class="text-3xl mb-2">↩️</div>
+          <h3 class="font-semibold mb-1">Easy Returns</h3>
+          <p class="text-sm text-gray-600">30-day return policy</p>
+        </div>
+        <div class="fade-up">
+          <div class="text-3xl mb-2">💬</div>
+          <h3 class="font-semibold mb-1">24/7 Support</h3>
+          <p class="text-sm text-gray-600">Customer care available</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="py-20 bg-pink-50">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-4xl font-bold mb-4 fade-up">Stay Connected</h2>
+      <p class="text-lg text-gray-600 mb-8 fade-up">Subscribe to receive updates on new collections, exclusive offers, and styling tips</p>
+      <form class="max-w-md mx-auto flex flex-col sm:flex-row gap-4 fade-up" onsubmit="return false;">
+        <input type="email" class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Your email address" />
+        <button class="btn-elegant text-white px-6 py-3 rounded-lg font-semibold">Subscribe</button>
       </form>
     </div>
   </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    });
+  </script>
 {% endblock %}
