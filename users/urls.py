@@ -7,4 +7,5 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("profile/", views.profile_view, name="profile"),
     path("profile/edit/", views.profile_update_view, name="profile_edit"),
+    path("delete-account/", views.delete_account, name="delete_account"),
 ]

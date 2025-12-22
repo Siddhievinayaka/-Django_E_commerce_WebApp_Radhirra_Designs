@@ -63,3 +63,11 @@ def profile_update_view(request):
         form = UserProfileUpdateForm(instance=profile)
 
     return render(request, "users/profile_update.html", {"form": form})
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        request.user.delete()
+        messages.success(request, 'Your account has been deleted successfully.')
+        return redirect('index')
+    return render(request, 'users/delete_account.html')
