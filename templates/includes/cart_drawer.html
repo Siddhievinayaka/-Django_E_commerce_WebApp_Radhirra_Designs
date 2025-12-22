@@ -1,0 +1,41 @@
+<!-- Cart Drawer Overlay -->
+<div id="cart-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300"></div>
+
+<!-- Cart Drawer -->
+<div id="cart-drawer" class="fixed right-0 top-0 h-screen w-full md:w-[420px] bg-white dark:bg-light-bg z-50 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300">
+  <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-600">
+    <h2 class="text-2xl font-semibold text-gray-900 dark:text-text-main">Your Cart</h2>
+    <button id="close-cart-drawer" class="text-gray-600 dark:text-text-secondary hover:text-gray-900 dark:hover:text-text-main transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto p-6" id="cart-items-container">
+    <!-- Cart items will be dynamically loaded here -->
+    <div id="empty-cart" class="text-center py-12">
+      <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+      </svg>
+      <p class="text-gray-500 dark:text-text-secondary">Your cart is empty</p>
+    </div>
+  </div>
+  
+  <div class="border-t border-gray-200 dark:border-gray-600 p-6 space-y-4" id="cart-footer">
+    <div class="flex justify-between items-center mb-1">
+      <span class="text-lg font-semibold text-gray-900 dark:text-text-main">Total</span>
+      <span class="text-2xl font-bold text-gray-900 dark:text-text-main" id="cart-drawer-total">₹0</span>
+    </div>
+    <p class="text-xs text-gray-600 dark:text-text-secondary mb-4">Shipping & taxes calculated at checkout</p>
+    <a href="{% url 'cart' %}" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-purple-500 hover:to-pink-500 text-white py-4 rounded-lg font-semibold text-center transition-all duration-300 transform hover:scale-105">
+      VIEW CART
+    </a>
+    <a href="{% url 'checkout' %}" class="block w-full bg-gray-900 dark:bg-gray-800 text-white py-4 rounded-lg font-semibold text-center hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+      CHECKOUT
+    </a>
+    <a href="{% url 'all_products' %}" class="block text-center text-gray-600 dark:text-text-secondary hover:text-gray-900 dark:hover:text-text-main font-medium transition-colors">
+      CONTINUE SHOPPING
+    </a>
+  </div>
+</div>

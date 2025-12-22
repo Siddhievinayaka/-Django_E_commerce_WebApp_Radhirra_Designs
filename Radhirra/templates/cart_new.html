@@ -1,0 +1,293 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %}
+  Shopping Cart - Radhirra Designs
+{% endblock %}
+
+{% block content %}
+  <style>
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slide-in {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .animate-fade-in {
+      animation: fade-in 0.8s ease-out;
+    }
+    
+    .animate-slide-in {
+      animation: slide-in 0.8s ease-out;
+    }
+    
+    .animate-slide-in {
+      animation: slide-in 0.6s ease-out forwards;
+      opacity: 0;
+    }
+    
+    .cart-item {
+      transition: all 0.3s ease;
+    }
+    
+    .cart-item:hover {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    [data-quantity],
+    [data-item-total],
+    [data-cart-total] {
+      transition: transform 0.2s ease;
+    }
+  </style>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 dark:from-dark-bg dark:to-gray-900 py-12">
+    <div class="container mx-auto px-4 max-w-7xl">
+      <!-- Header -->
+      <div class="text-center mb-12 animate-fade-in">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-text-main mb-4 brand-logo">Shopping Cart</h1>
+        <p class="text-gray-600 dark:text-text-secondary">Review your selected items</p>
+      </div>
+
+      {% if items %}
+        <div class="grid lg:grid-cols-3 gap-8">
+          <!-- Cart Items -->
+          <div class="lg:col-span-2 space-y-4">
+            {% for item in items %}
+              <div class="cart-item bg-white dark:bg-light-bg rounded-2xl shadow-lg p-6 transform hover:scale-105 transition-all duration-300 animate-slide-in" data-item-id="{{ item.id }}" style="animation-delay: {{ forloop.counter0|add:1 }}00ms">
+                <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                  <!-- Product Image -->
+                  <div class="flex-shrink-0">
+                    <div class="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden shadow-md">
+                      {% if item.product.main_image %}
+                        <img src="{{ item.product.main_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover hover:scale-110 transition-transform duration-300" />
+                      {% else %}
+                        <div class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                          <span class="text-gray-400">No Image</span>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <!-- Product Details -->
+                  <div class="flex-grow text-center md:text-left">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-text-main mb-2">{{ item.product.name }}</h3>
+
+                    <!-- Size and Sleeve -->
+                    <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
+                      {% if item.size %}
+                        <span class="px-3 py-1 bg-primary bg-opacity-20 text-primary text-sm font-medium rounded-full">Size: {{ item.size|upper }}</span>
+                      {% endif %}
+                      {% if item.sleeve %}
+                        <span class="px-3 py-1 bg-secondary bg-opacity-20 text-secondary text-sm font-medium rounded-full">Sleeve: {{ item.get_sleeve_display }}</span>
+                      {% endif %}
+                    </div>
+
+                    <!-- Price -->
+                    <div class="text-lg font-bold text-primary mb-2">
+                      ₹{% if item.product.sale_price %}
+                        {{ item.product.sale_price }}
+                      {% else %}
+                        {{ item.product.regular_price }}
+                      {% endif %}
+                      {% if item.product.sale_price %}
+                        <span class="text-sm text-gray-500 line-through ml-2">₹{{ item.product.regular_price }}</span>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <!-- Quantity Controls -->
+                  <div class="flex items-center space-x-3">
+                    <button onclick="updateQuantity({{ item.id }}, 'decrease')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-primary hover:text-white transition-all duration-200 flex items-center justify-center">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                      </svg>
+                    </button>
+
+                    <span class="w-12 text-center font-semibold text-gray-900 dark:text-text-main" data-quantity="{{ item.id }}">{{ item.quantity }}</span>
+
+                    <button onclick="updateQuantity({{ item.id }}, 'increase')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-primary hover:text-white transition-all duration-200 flex items-center justify-center">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Item Total & Remove -->
+                  <div class="text-center">
+                    <div class="text-xl font-bold text-gray-900 dark:text-text-main mb-2" data-item-total="{{ item.id }}">₹{{ item.get_total }}</div>
+                    <button onclick="removeItem({{ item.id }})" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 p-2 rounded-full transition-all duration-200">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Order Summary -->
+          <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-light-bg rounded-2xl shadow-xl p-8 sticky top-8 animate-fade-in">
+              <h2 class="text-2xl font-bold text-gray-900 dark:text-text-main mb-6">Order Summary</h2>
+
+              <div class="space-y-4 mb-6">
+                <div class="flex justify-between text-gray-600 dark:text-text-secondary">
+                  <span>Items ({{ cart_items_count }})</span>
+                  <span>₹{{ cart_total }}</span>
+                </div>
+                <div class="flex justify-between text-gray-600 dark:text-text-secondary">
+                  <span>Shipping</span>
+                  <span class="text-green-600 font-medium">Free</span>
+                </div>
+                <div class="flex justify-between text-gray-600 dark:text-text-secondary">
+                  <span>Tax</span>
+                  <span>Calculated at checkout</span>
+                </div>
+              </div>
+
+              <hr class="border-gray-200 dark:border-gray-600 mb-6" />
+
+              <div class="flex justify-between text-xl font-bold text-gray-900 dark:text-text-main mb-8">
+                <span>Total</span>
+                <span data-cart-total>₹{{ cart_total }}</span>
+              </div>
+
+              <a href="{% url 'checkout' %}" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-4 px-6 rounded-lg text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl mb-4">Proceed to Checkout</a>
+
+              <a href="{% url 'all_products' %}" class="block w-full text-center text-primary hover:text-secondary font-medium py-2 transition-colors">← Continue Shopping</a>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <!-- Empty Cart -->
+        <div class="text-center py-16 animate-fade-in">
+          <div class="w-32 h-32 mx-auto mb-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold text-gray-900 dark:text-text-main mb-4">Your cart is empty</h2>
+          <p class="text-gray-600 dark:text-text-secondary mb-8">Looks like you haven't added any items to your cart yet.</p>
+          <a href="{% url 'all_products' %}" class="inline-block bg-gradient-to-r from-primary to-secondary hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 px-8 rounded-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">Start Shopping</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script src="{% static 'js/cart.js' %}"></script>
+  <script>
+    function getCookie(name) {
+      let cookieValue = null
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';')
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim()
+          if (cookie.substring(0, name.length + 1) === name + '=') {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+            break
+          }
+        }
+      }
+      return cookieValue
+    }
+    
+    function updateQuantity(itemId, action) {
+      const csrftoken = getCookie('csrftoken')
+    
+      fetch('/update_cart_item/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify({
+          item_id: itemId,
+          action: action
+        })
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            if (data.removed) {
+              // Remove item with animation
+              const itemElement = document.querySelector(`[data-item-id="${itemId}"]`)
+              itemElement.style.transform = 'translateX(-100%)'
+              itemElement.style.opacity = '0'
+              setTimeout(() => {
+                itemElement.remove()
+                updateTotals(data.cart_total, data.cart_items_count)
+              }, 300)
+            } else {
+              // Update quantity and totals with animation
+              const quantityEl = document.querySelector(`[data-quantity="${itemId}"]`)
+              const itemTotalEl = document.querySelector(`[data-item-total="${itemId}"]`)
+    
+              quantityEl.style.transform = 'scale(1.2)'
+              quantityEl.textContent = data.quantity
+              setTimeout(() => {
+                quantityEl.style.transform = 'scale(1)'
+              }, 200)
+    
+              itemTotalEl.style.transform = 'scale(1.1)'
+              itemTotalEl.textContent = `₹${data.item_total}`
+              setTimeout(() => {
+                itemTotalEl.style.transform = 'scale(1)'
+              }, 200)
+    
+              updateTotals(data.cart_total, data.cart_items_count)
+            }
+          }
+        })
+    }
+    
+    function removeItem(itemId) {
+      if (confirm('Are you sure you want to remove this item?')) {
+        updateQuantity(itemId, 'remove')
+      }
+    }
+    
+    function updateTotals(cartTotal, itemsCount) {
+      // Update all cart total elements with animation
+      document.querySelectorAll('[data-cart-total]').forEach((el) => {
+        el.style.transform = 'scale(1.1)'
+        el.textContent = `₹${cartTotal}`
+        setTimeout(() => {
+          el.style.transform = 'scale(1)'
+        }, 200)
+      })
+    
+      // Update items count
+      const itemsCountEl = document.querySelector('[data-items-count]')
+      if (itemsCountEl) {
+        itemsCountEl.style.transform = 'scale(1.1)'
+        itemsCountEl.textContent = itemsCount
+        setTimeout(() => {
+          itemsCountEl.style.transform = 'scale(1)'
+        }, 200)
+      }
+    
+      // Update header cart count
+      const headerCartCount = document.getElementById('cart-total')
+      if (headerCartCount) {
+        headerCartCount.textContent = itemsCount
+      }
+    }
+  </script>
+{% endblock %}

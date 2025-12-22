@@ -25,7 +25,6 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("", include("Radhirra.urls")),  # Changed from "Radhirra/" to ""
         path("users/", include("users.urls")),  # Include the users app URLs
-        path("admin-dashboard/", include("dashboard.urls", namespace="dashboard")),
         path("accounts/", include("allauth.urls")),
     ]
     + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     # Your apps
     "Radhirra",
     "users",
-    "dashboard",
     # Cloudinary
     "cloudinary",
     "cloudinary_storage",
@@ -216,8 +215,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-LOGIN_URL = "dashboard:admin_login"
 
 # Allauth settings
 SITE_ID = 1

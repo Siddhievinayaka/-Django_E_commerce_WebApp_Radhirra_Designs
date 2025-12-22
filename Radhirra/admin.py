@@ -6,7 +6,8 @@ from .models import (
     OrderItem,
     ShippingAddress,
     Category,
-)  # Removed Customer, Added Category
+    Review,
+)
 
 
 class ProductImageInline(admin.TabularInline):
@@ -19,10 +20,10 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 # Register your models here.
-# admin.site.register(Customer) # Removed Customer registration
-admin.site.register(Category)  # Register the new Category model
+admin.site.register(Category)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(ProductImage)
 admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(ShippingAddress)
+admin.site.register(Review)

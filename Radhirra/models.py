@@ -28,11 +28,18 @@ class Category(models.Model):  # New Category Model
 
 class Product(models.Model):
     SIZE_CHOICES = [
+        ("XS", "XS"),
         ("S", "S"),
         ("M", "M"),
         ("L", "L"),
         ("XL", "XL"),
         ("XXL", "XXL"),
+    ]
+    
+    SLEEVE_CHOICES = [
+        ("sleeveless", "Sleeveless"),
+        ("short", "Short"),
+        ("3/4", "3/4"),
     ]
 
     category = models.ForeignKey(
@@ -50,6 +57,7 @@ class Product(models.Model):
     )
     description = models.TextField(blank=True, null=True)
     size = models.CharField(max_length=3, choices=SIZE_CHOICES, null=True, blank=True)
+    sleeve = models.CharField(max_length=20, choices=SLEEVE_CHOICES, null=True, blank=True)
     material = models.CharField(max_length=100, null=True, blank=True)
     specifications = models.TextField(blank=True, null=True)
     seller_information = models.TextField(blank=True, null=True)
@@ -165,6 +173,34 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    size = models.CharField(max_length=3, choices=Product.SIZE_CHOICES, null=True, blank=True)
+    sleeve = models.CharField(max_length=20, choices=Product.SLEEVE_CHOICES, null=True, blank=True)
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
+    
+    @property
+    def get_total(self):
+        price = self.product.sale_price if self.product.sale_price else self.product.regular_price
+        return price * self.quantity
+
+class Review(models.Model):
+    RATING_CHOICES = [
+        (1, '1 Star'),
+        (2, '2 Stars'),
+        (3, '3 Stars'),
+        (4, '4 Stars'),
+        (5, '5 Stars'),
+    ]
+    
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('product', 'user')
+    
+    def __str__(self):
+        return f'{self.user.username} - {self.product.name} ({self.rating} stars)'

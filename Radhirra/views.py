@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from .models import Order, OrderItem, Product, ShippingAddress, Category
+from .models import Order, OrderItem, Product, ShippingAddress, Category, Review
+from .forms import ReviewForm
 
 # from .form import CustomerForm # This form is no longer needed here
 from django.contrib.auth.models import (
@@ -103,21 +104,54 @@ def all_products(request):
 
 def product_detail(request, pk):
     product = Product.objects.get(id=pk)
-    # Fetch all other products to recommend, excluding the current one
-    recommended_products = Product.objects.exclude(id=pk)
-
-    context = {"product": product, "recommended_products": recommended_products}
-    return render(request, "product_detail.html", context)
+    reviews = product.reviews.all().order_by('-created_at')
+    user_review = None
+    
+    if request.user.is_authenticated:
+        user_review = reviews.filter(user=request.user).first()
+    
+    if request.method == 'POST' and request.user.is_authenticated:
+        if user_review:
+            form = ReviewForm(request.POST, instance=user_review)
+        else:
+            form = ReviewForm(request.POST)
+        
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            review.save()
+            return redirect('product_detail', pk=pk)
+    else:
+        form = ReviewForm(instance=user_review) if user_review else ReviewForm()
+    
+    recommended_products = Product.objects.exclude(id=pk)[:4]
+    
+    context = {
+        'product': product,
+        'reviews': reviews,
+        'user_review': user_review,
+        'form': form,
+        'recommended_products': recommended_products
+    }
+    return render(request, 'product_detail.html', context)
 
 
 def cart(request):
-    data = cartData(request)
-    cartItems = data["cartItems"]
-    order = data["order"]
-    items = data["items"]
-
-    context = {"items": items, "order": order, "cartItems": cartItems}
-    return render(request, "cart.html", context)
+    cart = get_cart(request)
+    items = cart.items.select_related("product").prefetch_related("product__images")
+    
+    # Calculate totals
+    cart_total = sum(item.get_total for item in items)
+    cart_items_count = sum(item.quantity for item in items)
+    
+    context = {
+        "items": items,
+        "cart_total": cart_total,
+        "cart_items_count": cart_items_count,
+        "cartItems": cart_items_count
+    }
+    return render(request, "cart_new.html", context)
 
 
 def checkout(request):
@@ -248,11 +282,41 @@ def update_quantity(request, item_id):
 
 def cart_detail(request):
     cart = get_cart(request)
-    items = cart.items.select_related("product")
-    return render(request, "cart.html", {"cart": cart, "items": items})
+    items = cart.items.select_related("product").prefetch_related("product__images")
+    
+    # Calculate totals
+    cart_total = sum(item.get_total for item in items)
+    cart_items_count = sum(item.quantity for item in items)
+    
+    context = {
+        "items": items,
+        "cart_total": cart_total,
+        "cart_items_count": cart_items_count,
+        "cartItems": cart_items_count
+    }
+    return render(request, "cart_new.html", context)
 
 
 def move_session_cart_to_user_cart(request, user):
+    session_key = request.session.session_key
+    if not session_key:
+        return
+    try:
+        session_cart = Cart.objects.get(session_key=session_key, user__isnull=True)
+        user_cart, created = Cart.objects.get_or_create(user=user)
+        for item in session_cart.items.all():
+            user_item, created = CartItem.objects.get_or_create(
+                cart=user_cart, product=item.product
+            )
+            if not created:
+                user_item.quantity += item.quantity
+                user_item.save()
+            else:
+                user_item.quantity = item.quantity
+                user_item.save()
+        session_cart.delete()
+    except Cart.DoesNotExist:
+        pass
     session_key = request.session.session_key
     if not session_key:
         return
@@ -280,3 +344,138 @@ def contact(request):
     
     context = {"cartItems": cartItems}
     return render(request, "contacts.html", context)
+
+def update_cart_item(request):
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        item_id = data.get('item_id')
+        action = data.get('action')
+        
+        try:
+            cart_item = CartItem.objects.get(id=item_id)
+            
+            if action == 'increase':
+                cart_item.quantity += 1
+                cart_item.save()
+            elif action == 'decrease':
+                if cart_item.quantity > 1:
+                    cart_item.quantity -= 1
+                    cart_item.save()
+                else:
+                    cart_item.delete()
+                    return JsonResponse({'success': True, 'removed': True})
+            elif action == 'remove':
+                cart_item.delete()
+                return JsonResponse({'success': True, 'removed': True})
+            
+            # Calculate new totals
+            cart = cart_item.cart
+            cart_total = sum(item.get_total for item in cart.items.all())
+            cart_items_count = sum(item.quantity for item in cart.items.all())
+            
+            return JsonResponse({
+                'success': True,
+                'quantity': cart_item.quantity,
+                'item_total': float(cart_item.get_total),
+                'cart_total': float(cart_total),
+                'cart_items_count': cart_items_count
+            })
+            
+        except CartItem.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Item not found'})
+    
+    return JsonResponse({'success': False})
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        size = data.get('size')
+        sleeve = data.get('sleeve')
+        
+        product = get_object_or_404(Product, id=product_id)
+        cart = get_cart(request)
+        
+        # Check if item with same product, size, and sleeve exists
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            size=size,
+            sleeve=sleeve,
+            defaults={'quantity': 1}
+        )
+        
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+        
+        cart_items = sum(item.quantity for item in cart.items.all())
+        
+        return JsonResponse({
+            'success': True,
+            'cart_items': cart_items,
+            'message': 'Item added to cart'
+        })
+    
+    return JsonResponse({'success': False})
+
+def get_cart_items(request):
+    cart = get_cart(request)
+    items = cart.items.select_related("product").prefetch_related("product__images")
+    
+    cart_data = {
+        'items': [],
+        'cart_total': 0,
+        'cart_items_count': 0
+    }
+    
+    for item in items:
+        image_url = item.product.main_image.image.url if item.product.main_image else '/static/images/no-image.png'
+        cart_data['items'].append({
+            'id': item.id,
+            'name': item.product.name,
+            'size': item.size or 'N/A',
+            'sleeve': item.get_sleeve_display() if item.sleeve else 'N/A',
+            'price': float(item.product.sale_price if item.product.sale_price else item.product.regular_price),
+            'quantity': item.quantity,
+            'total': float(item.get_total),
+            'image': image_url
+        })
+    
+    cart_data['cart_total'] = float(sum(item.get_total for item in items))
+    cart_data['cart_items_count'] = sum(item.quantity for item in items)
+    
+    return JsonResponse(cart_data)
+
+def add_to_cart_ajax(request):
+    if request.method == 'POST':
+        import json
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        size = data.get('size')
+        sleeve = data.get('sleeve')
+        
+        product = get_object_or_404(Product, id=product_id)
+        cart = get_cart(request)
+        
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            size=size,
+            sleeve=sleeve,
+            defaults={'quantity': 1}
+        )
+        
+        if not created:
+            cart_item.quantity += 1
+            cart_item.save()
+        
+        cart_items = sum(item.quantity for item in cart.items.all())
+        
+        return JsonResponse({
+            'success': True,
+            'cart_items': cart_items,
+            'message': 'Item added to cart'
+        })
+    
+    return JsonResponse({'success': False})
