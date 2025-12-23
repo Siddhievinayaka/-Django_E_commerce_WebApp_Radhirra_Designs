@@ -22,24 +22,17 @@ def index(request):
         data = cartData(request)
         cartItems = data["cartItems"]
 
-        products = Product.objects.all()
+        featured_products = Product.objects.filter(is_featured=True).prefetch_related('images', 'reviews')[:8]
         five_star_reviews = Review.objects.filter(rating=5).select_related('user', 'product').order_by('-created_at')[:10]
         context = {
-            "products": products,
+            "featured_products": featured_products,
             "cartItems": cartItems,
-            "autumn_products": products[:4],
-            "summer_products": products[4:6],
-            "ajrakh_products": products[6:10],
             "five_star_reviews": five_star_reviews,
         }
     except Exception:
-        # Fallback when database is unavailable
         context = {
-            "products": [],
+            "featured_products": [],
             "cartItems": 0,
-            "autumn_products": [],
-            "summer_products": [],
-            "ajrakh_products": [],
             "five_star_reviews": [],
         }
     return render(request, "index.html", context)

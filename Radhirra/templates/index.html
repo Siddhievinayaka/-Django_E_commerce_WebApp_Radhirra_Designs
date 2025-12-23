@@ -7,12 +7,29 @@
 
 {% block content %}
   <style>
-    .fade-up { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
-    .hover-lift { transition: transform 0.3s ease; }
-    .hover-lift:hover { transform: translateY(-5px); }
-    .btn-elegant { background: linear-gradient(135deg, #e4a8cc 0%, #8b5a8c 100%); transition: all 0.3s ease; }
-    .btn-elegant:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(228, 168, 204, 0.4); }
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hover-lift {
+      transition: transform 0.3s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-5px);
+    }
+    .btn-elegant {
+      background: linear-gradient(135deg, #e4a8cc 0%, #8b5a8c 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-elegant:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(228, 168, 204, 0.4);
+    }
   </style>
   <!-- Hero Section -->
   <div class="swiper-container hero-slider">
@@ -118,123 +135,162 @@
     </div>
   </section>
 
-  <!-- Product Categories -->
-  <section class="py-20 bg-gray-50">
+  <!-- Featured Products -->
+  <section class="py-16">
     <div class="container mx-auto px-4">
-      <h2 class="text-4xl font-bold text-center mb-12 fade-up">Shop by Collection</h2>
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift fade-up">
-          <div class="h-64 bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
-            <span class="text-6xl">👗</span>
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Traditional Gopi Skirts</h3>
-            <p class="text-gray-600 mb-4">Classic full-circle skirts in vibrant colors and traditional prints. Perfect for daily wear and spiritual practices.</p>
-            <div class="flex justify-between items-center">
-              <span class="text-lg font-bold text-pink-600">From ₹1,299</span>
-              <a href="#" class="text-pink-600 hover:text-pink-800">View All →</a>
-            </div>
-          </div>
-        </div>
-        <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift fade-up">
-          <div class="h-64 bg-gradient-to-br from-yellow-200 to-orange-200 flex items-center justify-center">
-            <span class="text-6xl">🌺</span>
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Festive Collection</h3>
-            <p class="text-gray-600 mb-4">Elegant designs with intricate embroidery and rich fabrics for special occasions and celebrations.</p>
-            <div class="flex justify-between items-center">
-              <span class="text-lg font-bold text-pink-600">From ₹2,499</span>
-              <a href="#" class="text-pink-600 hover:text-pink-800">View All →</a>
-            </div>
-          </div>
-        </div>
-        <div class="bg-white rounded-lg overflow-hidden shadow-lg hover-lift fade-up">
-          <div class="h-64 bg-gradient-to-br from-blue-200 to-teal-200 flex items-center justify-center">
-            <span class="text-6xl">🌸</span>
-          </div>
-          <div class="p-6">
-            <h3 class="text-xl font-semibold mb-2">Summer Essentials</h3>
-            <p class="text-gray-600 mb-4">Lightweight, breathable fabrics in soft pastels and floral prints for comfortable summer wear.</p>
-            <div class="flex justify-between items-center">
-              <span class="text-lg font-bold text-pink-600">From ₹999</span>
-              <a href="#" class="text-pink-600 hover:text-pink-800">View All →</a>
-            </div>
+      <div class="flex justify-between items-center mb-12">
+        <h2 class="text-3xl font-bold">Featured Products</h2>
+        <div class="px-1 py-1 bg-gray-100 rounded-full" style="
+    /* width: auto; */
+    min-width: 150px !important;
+">
+          <!-- Mobile Dropdown -->
+          <select onchange="filterProducts(this.value)" class="md:hidden w-full bg-white text-gray-800 text-sm font-medium px-4 py-2 rounded-full shadow-sm focus:outline-none">
+            <option value="all">All</option>
+            <option value="new">New Arrivals</option>
+            <option value="best">Best Sellers</option>
+          </select>
+
+          <!-- Desktop Buttons -->
+          <div class="hidden md:flex space-x-1">
+            <button onclick="filterProducts('all')" class="filter-btn px-4 py-1.5 bg-white text-gray-800 rounded-full shadow-sm text-sm font-medium whitespace-nowrap">All</button>
+            <button onclick="filterProducts('new')" class="filter-btn px-4 py-1.5 text-gray-600 rounded-full text-sm font-medium hover:bg-white hover:shadow-sm transition whitespace-nowrap">New Arrivals</button>
+            <button onclick="filterProducts('best')" class="filter-btn px-4 py-1.5 text-gray-600 rounded-full text-sm font-medium hover:bg-white hover:shadow-sm transition whitespace-nowrap">Best Sellers</button>
           </div>
         </div>
       </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="featured-products">
+        {% for product in featured_products %}
+        <div class="group" data-filter="{% if product.is_new_arrival %}new{% elif product.is_best_seller %}best{% endif %}">
+          <div class="relative overflow-hidden rounded-lg mb-4">
+            {% if product.is_new_arrival %}
+            <span class="absolute top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded z-10">New</span>
+            {% elif product.is_best_seller %}
+            <span class="absolute top-3 left-3 bg-amber-500 text-white text-xs px-2 py-1 rounded z-10">Best Seller</span>
+            {% elif product.sale_price %}
+            <span class="absolute top-3 left-3 bg-rose-500 text-white text-xs px-2 py-1 rounded z-10">Sale</span>
+            {% endif %}
+            <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="w-full h-80 object-cover object-top" />
+            <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <a href="{% url 'product_detail' product.id %}" class="bg-white text-gray-900 w-10 h-10 rounded-full flex items-center justify-center shadow-md mx-1 hover:bg-gray-100 transition"><i class="ri-eye-line"></i></a>
+              <button class="bg-white text-gray-900 w-10 h-10 rounded-full flex items-center justify-center shadow-md mx-1 hover:bg-gray-100 transition"><i class="ri-heart-line"></i></button>
+              <a href="{% url 'product_detail' product.id %}" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md mx-1 hover:bg-primary/90 transition"><i class="ri-shopping-bag-line"></i></a>
+            </div>
+          </div>
+          <div>
+            <h3 class="font-medium text-gray-900 mb-1">{{ product.name }}</h3>
+            <div class="flex items-center mb-1">
+              <div class="flex text-amber-400 text-sm">
+                {% with product.reviews.all|length as review_count %}
+                {% if review_count > 0 %}
+                  {% with product.reviews.all as reviews %}
+                    {% for i in "12345" %}
+                      <i class="ri-star-fill"></i>
+                    {% endfor %}
+                  {% endwith %}
+                {% else %}
+                  {% for i in "12345" %}
+                    <i class="ri-star-line"></i>
+                  {% endfor %}
+                {% endif %}
+                {% endwith %}
+              </div>
+              <span class="text-xs text-gray-500 ml-1">({{ product.reviews.all|length }})</span>
+            </div>
+            {% if product.sale_price %}
+            <div class="flex items-center">
+              <p class="text-gray-900 font-medium">₹{{ product.sale_price }}</p>
+              <p class="text-gray-500 line-through text-sm ml-2">₹{{ product.regular_price }}</p>
+            </div>
+            {% else %}
+            <p class="text-gray-900 font-medium">₹{{ product.regular_price }}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+          <p class="text-gray-500">No featured products available at the moment.</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="text-center mt-12">
+        <a href="{% url 'all_products' %}" class="inline-block py-3 px-8 border border-gray-300 text-gray-800 font-medium rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">View All Products</a>
+      </div>
     </div>
   </section>
+
   <!-- Customer Testimonials -->
   <section class="py-20 bg-white">
     <div class="container mx-auto px-4">
       <h2 class="text-4xl font-bold text-center mb-12 fade-up">What Our Customers Say</h2>
       {% if five_star_reviews %}
-      <div class="swiper testimonials-slider max-w-5xl mx-auto">
-        <div class="swiper-wrapper">
-          {% for review in five_star_reviews %}
-          <div class="swiper-slide">
-            <div class="bg-gray-50 p-8 rounded-lg shadow-md">
-              <div class="flex items-center mb-4">
-                <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4 text-white font-bold text-lg">
-                  {%if review.user.profile.imageURL %}
-                          <img class="object-cover object-center rounded-full h-full w-full" src="{{ review.user.profile.imageURL }}" alt=" {{ review.user.username|first|upper }}  " />
-                  {%else%}
-                  {{ review.user.username|first|upper }}   
-                  {%endif%}
-                </div>
-                <div>
-                  <h4 class="font-semibold text-lg">{{ review.user.username }}</h4>
-                  <div class="text-yellow-400 text-sm">★★★★★</div>
+        <div class="swiper testimonials-slider max-w-5xl mx-auto">
+          <div class="swiper-wrapper">
+            {% for review in five_star_reviews %}
+              <div class="swiper-slide">
+                <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                  <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4 text-white font-bold text-lg">
+                      {% if review.user.profile.imageURL %}
+                        <img class="object-cover object-center rounded-full h-full w-full" src="{{ review.user.profile.imageURL }}" alt=" {{ review.user.username|first|upper }}  " />
+                      {% else %}
+                        {{ review.user.username|first|upper }}
+                      {% endif %}
+                    </div>
+                    <div>
+                      <h4 class="font-semibold text-lg">{{ review.user.username }}</h4>
+                      <div class="text-yellow-400 text-sm">★★★★★</div>
+                    </div>
+                  </div>
+                  <p class="text-gray-700 leading-relaxed mb-3">"{{ review.comment }}"</p>
+                  <p class="text-xs text-gray-500">{{ review.product.name }} • {{ review.created_at|date:'M d, Y' }}</p>
                 </div>
               </div>
-              <p class="text-gray-700 leading-relaxed mb-3">"{{ review.comment }}"</p>
-              <p class="text-xs text-gray-500">{{ review.product.name }} • {{ review.created_at|date:"M d, Y" }}</p>
-            </div>
+            {% endfor %}
           </div>
-          {% endfor %}
+          <div class="swiper-pagination mt-8"></div>
         </div>
-        <div class="swiper-pagination mt-8"></div>
-      </div>
       {% else %}
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-gray-50 p-6 rounded-lg fade-up">
-          <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
-              <span class="text-xl">👩</span>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="bg-gray-50 p-6 rounded-lg fade-up">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
+                <span class="text-xl">👩</span>
+              </div>
+              <div>
+                <h4 class="font-semibold">Priya Sharma</h4>
+                <div class="text-yellow-400">★★★★★</div>
+              </div>
             </div>
-            <div>
-              <h4 class="font-semibold">Priya Sharma</h4>
-              <div class="text-yellow-400">★★★★★</div>
-            </div>
+            <p class="text-gray-600">"The quality is exceptional! I've been wearing Radhirra skirts for over a year and they still look brand new. The comfort and elegance are unmatched."</p>
           </div>
-          <p class="text-gray-600">"The quality is exceptional! I've been wearing Radhirra skirts for over a year and they still look brand new. The comfort and elegance are unmatched."</p>
-        </div>
-        <div class="bg-gray-50 p-6 rounded-lg fade-up">
-          <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
-              <span class="text-xl">👩</span>
+          <div class="bg-gray-50 p-6 rounded-lg fade-up">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
+                <span class="text-xl">👩</span>
+              </div>
+              <div>
+                <h4 class="font-semibold">Sarah Johnson</h4>
+                <div class="text-yellow-400">★★★★★</div>
+              </div>
             </div>
-            <div>
-              <h4 class="font-semibold">Sarah Johnson</h4>
-              <div class="text-yellow-400">★★★★★</div>
-            </div>
+            <p class="text-gray-600">"Perfect for my yoga practice and temple visits. The fabric is so comfortable and the designs are beautiful. Highly recommend!"</p>
           </div>
-          <p class="text-gray-600">"Perfect for my yoga practice and temple visits. The fabric is so comfortable and the designs are beautiful. Highly recommend!"</p>
-        </div>
-        <div class="bg-gray-50 p-6 rounded-lg fade-up">
-          <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
-              <span class="text-xl">👩</span>
+          <div class="bg-gray-50 p-6 rounded-lg fade-up">
+            <div class="flex items-center mb-4">
+              <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4">
+                <span class="text-xl">👩</span>
+              </div>
+              <div>
+                <h4 class="font-semibold">Meera Patel</h4>
+                <div class="text-yellow-400">★★★★★</div>
+              </div>
             </div>
-            <div>
-              <h4 class="font-semibold">Meera Patel</h4>
-              <div class="text-yellow-400">★★★★★</div>
-            </div>
+            <p class="text-gray-600">"Fast shipping and excellent customer service. The skirts fit perfectly and the colors are even more vibrant in person!"</p>
           </div>
-          <p class="text-gray-600">"Fast shipping and excellent customer service. The skirts fit perfectly and the colors are even more vibrant in person!"</p>
         </div>
-      </div>
       {% endif %}
     </div>
   </section>
@@ -281,16 +337,19 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.1 });
-      
-      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible')
+            }
+          })
+        },
+        { threshold: 0.1 }
+      )
+    
+      document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el))
+    
       // Initialize testimonials slider
       new Swiper('.testimonials-slider', {
         slidesPerView: 1,
@@ -298,21 +357,42 @@
         loop: true,
         autoplay: {
           delay: 5000,
-          disableOnInteraction: false,
+          disableOnInteraction: false
         },
         pagination: {
           el: '.swiper-pagination',
-          clickable: true,
+          clickable: true
         },
         breakpoints: {
           768: {
-            slidesPerView: 2,
+            slidesPerView: 2
           },
           1024: {
-            slidesPerView: 3,
-          },
-        },
+            slidesPerView: 3
+          }
+        }
+      })
+    })
+
+    function filterProducts(filter) {
+      const products = document.querySelectorAll('#featured-products > div[data-filter]');
+      const buttons = document.querySelectorAll('.filter-btn');
+      
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-white', 'text-gray-800', 'shadow-sm');
+        btn.classList.add('text-gray-600');
       });
-    });
+      
+      event.target.classList.remove('text-gray-600');
+      event.target.classList.add('bg-white', 'text-gray-800', 'shadow-sm');
+      
+      products.forEach(product => {
+        if (filter === 'all' || product.dataset.filter === filter) {
+          product.style.display = 'block';
+        } else {
+          product.style.display = 'none';
+        }
+      });
+    }
   </script>
 {% endblock %}

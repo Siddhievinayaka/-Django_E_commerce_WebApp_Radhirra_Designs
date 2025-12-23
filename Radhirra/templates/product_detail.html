@@ -209,7 +209,11 @@
             <div class="flex items-center justify-between mb-4">
               <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
-                  {{ review.user.username|first|upper }}
+                  {%if review.user.profile.imageURL %}
+                          <img class="object-cover object-center rounded-full h-full w-full" src="{{ review.user.profile.imageURL }}" alt=" {{ review.user.username|first|upper }}  " />
+                  {%else%}
+                  {{ review.user.username|first|upper }}   
+                  {%endif%}
                 </div>
                 <div>
                   <h4 class="font-semibold text-gray-900 dark:text-text-main">{{ review.user.username }}</h4>

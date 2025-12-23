@@ -97,6 +97,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "Radhirra.context_processors.categories_processor",
+                "Radhirra.context_processors.cart_items_processor",
             ],
         },
     },

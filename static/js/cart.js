@@ -1,5 +1,4 @@
 function addToCart() {
-  // Check if user is authenticated
   if (!isUserAuthenticated()) {
     showLoginModal();
     return;
@@ -35,6 +34,10 @@ function addToCart() {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
+      const cartTotal = document.getElementById('cart-total');
+      if (cartTotal) {
+        cartTotal.textContent = data.cart_items;
+      }
       openCartDrawer();
     }
   });
@@ -95,19 +98,19 @@ function updateQuantity(itemId, action) {
   .then(data => {
     if (data.success) {
       if (data.removed) {
-        // Remove the entire cart item from DOM
         document.querySelector(`[data-item-id="${itemId}"]`).remove();
       } else {
-        // Update quantity display
         document.querySelector(`[data-quantity="${itemId}"]`).textContent = data.quantity;
-        // Update item total
         document.querySelector(`[data-item-total="${itemId}"]`).textContent = `₹${data.item_total}`;
       }
       
-      // Update cart totals
       document.querySelector('[data-cart-total]').textContent = `₹${data.cart_total}`;
       
-      // Update items count in summary
+      const cartTotal = document.getElementById('cart-total');
+      if (cartTotal) {
+        cartTotal.textContent = data.cart_items_count;
+      }
+      
       const itemsCountElement = document.querySelector('.text-gray-600.dark\\:text-text-secondary');
       if (itemsCountElement) {
         itemsCountElement.innerHTML = `Items (${data.cart_items_count}) <span>₹${data.cart_total}</span>`;
@@ -136,19 +139,19 @@ function removeItem(itemId) {
   .then(response => response.json())
   .then(data => {
     if (data.success) {
-      // Remove the entire cart item from DOM
       document.querySelector(`[data-item-id="${itemId}"]`).remove();
-      
-      // Update cart totals
       document.querySelector('[data-cart-total]').textContent = `₹${data.cart_total}`;
       
-      // Update items count in summary
+      const cartTotal = document.getElementById('cart-total');
+      if (cartTotal) {
+        cartTotal.textContent = data.cart_items_count;
+      }
+      
       const itemsCountElement = document.querySelector('.text-gray-600.dark\\:text-text-secondary');
       if (itemsCountElement) {
         itemsCountElement.innerHTML = `Items (${data.cart_items_count}) <span>₹${data.cart_total}</span>`;
       }
       
-      // Check if cart is empty and reload page to show empty cart message
       if (data.cart_items_count === 0) {
         location.reload();
       }
@@ -159,7 +162,6 @@ function removeItem(itemId) {
   });
 }
 
-// Size and sleeve selection
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.size-option').forEach(option => {
     option.addEventListener('click', function() {
@@ -185,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Login modal event listeners
   const closeLoginBtn = document.getElementById('close-login-modal');
   const loginOverlay = document.getElementById('login-overlay');
   

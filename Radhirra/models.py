@@ -61,6 +61,9 @@ class Product(models.Model):
     material = models.CharField(max_length=100, null=True, blank=True)
     specifications = models.TextField(blank=True, null=True)
     seller_information = models.TextField(blank=True, null=True)
+    is_featured = models.BooleanField(default=False)
+    is_new_arrival = models.BooleanField(default=False)
+    is_best_seller = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

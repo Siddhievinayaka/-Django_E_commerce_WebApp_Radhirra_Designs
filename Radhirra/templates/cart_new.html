@@ -1,11 +1,6 @@
-{% extends 'layout.html' %}
-{% load static %}
-
-{% block title %}
+{% extends 'layout.html' %} {% load static %} {% block title %}
   Shopping Cart - Radhirra Designs
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
   <style>
     @keyframes fade-in {
       from {
@@ -92,8 +87,7 @@
                     <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
                       {% if item.size %}
                         <span class="px-3 py-1 bg-primary bg-opacity-20 text-primary text-sm font-medium rounded-full">Size: {{ item.size|upper }}</span>
-                      {% endif %}
-                      {% if item.sleeve %}
+                      {% endif %} {% if item.sleeve %}
                         <span class="px-3 py-1 bg-secondary bg-opacity-20 text-secondary text-sm font-medium rounded-full">Sleeve: {{ item.get_sleeve_display }}</span>
                       {% endif %}
                     </div>
@@ -104,8 +98,7 @@
                         {{ item.product.sale_price }}
                       {% else %}
                         {{ item.product.regular_price }}
-                      {% endif %}
-                      {% if item.product.sale_price %}
+                      {% endif %} {% if item.product.sale_price %}
                         <span class="text-sm text-gray-500 line-through ml-2">₹{{ item.product.regular_price }}</span>
                       {% endif %}
                     </div>
