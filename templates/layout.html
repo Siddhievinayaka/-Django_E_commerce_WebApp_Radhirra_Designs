@@ -53,17 +53,17 @@
         theme: {
           extend: {
             colors: {
-              primary: '#f15096',
-              secondary: '#f2b4c4',
-              'dark-bg': '#2a2145',
-              'light-bg': '#3e306b',
-              'text-main': '#f3e8ff',
-              'text-secondary': '#d1c4e9'
+              'dark-bg': '#1a1a2e',
+              'light-bg': '#f8f9fa',
+              'text-main': '#ffffff',
+              'text-secondary': '#b0b0b0',
+              'primary': '#e4a8cc',
+              'secondary': '#d4a8bc'
             }
           }
         }
       } {% endcomment %}
-      module.exports = {
+       module.exports = {
   theme: {
     extend: {
       colors: {
@@ -77,8 +77,6 @@
     }
   }
 }
-
-      
     </script>
 
     <script>
@@ -133,7 +131,6 @@
     {% include 'includes/login_modal.html' %}
 
     <!-- FIXED ORDER -->
-    {% comment %} <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script> {% endcomment %}
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {

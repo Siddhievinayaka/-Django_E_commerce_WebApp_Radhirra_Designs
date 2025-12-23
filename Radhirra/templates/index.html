@@ -177,7 +177,11 @@
             <div class="bg-gray-50 p-8 rounded-lg shadow-md">
               <div class="flex items-center mb-4">
                 <div class="w-12 h-12 bg-pink-200 rounded-full flex items-center justify-center mr-4 text-white font-bold text-lg">
-                  {{ review.user.username|first|upper }}
+                  {%if review.user.profile.imageURL %}
+                          <img class="object-cover object-center rounded-full h-full w-full" src="{{ review.user.profile.imageURL }}" alt=" {{ review.user.username|first|upper }}  " />
+                  {%else%}
+                  {{ review.user.username|first|upper }}   
+                  {%endif%}
                 </div>
                 <div>
                   <h4 class="font-semibold text-lg">{{ review.user.username }}</h4>

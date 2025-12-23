@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 searchDropdown.classList.remove('hidden');
                 requestAnimationFrame(() => {
                     searchDropdown.classList.remove('opacity-0');
+                    // Focus on search input when dropdown opens
+                    const searchInput = document.getElementById('search');
+                    if (searchInput) searchInput.focus();
                 });
             } else {
                 searchDropdown.classList.add('opacity-0');
@@ -40,29 +43,96 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Enhanced search functionality
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+        let searchTimeout;
+        
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            if (this.value.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    // Add live search suggestions here if needed
+                }, 300);
+            }
+        });
+        
+        searchInput.addEventListener('focus', function() {
+            if (!this.value) {
+                this.placeholder = 'Try: "saree", "1000", "cotton"...';
+            }
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            this.placeholder = 'Search by name, price, or category...';
+        });
+    }
+
     // --- Event Listeners ---
     if (menuButton) menuButton.addEventListener('click', openSidebar);
     if (closeSidebarButton) closeSidebarButton.addEventListener('click', closeSidebar);
     if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
     if (searchButton) searchButton.addEventListener('click', toggleSearch);
 
+    // --- Header Scroll ---
+    // const header = document.getElementById('main-header');
+    // if (header) {
+    //     let lastScrollTop = 0;
+    //     header.style.transition = 'transform 0.3s ease';
+
+    //     window.addEventListener('scroll', function () {
+    //         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    //         if (scrollTop > lastScrollTop && scrollTop > header.offsetHeight) {
+    //             // Downscroll (FIXED: px instead of %)
+    //             header.style.transform = 'translateY(-74%)';
+    //         } else {
+    //             // Upscroll
+    //             header.style.transform = 'translateY(0)';
+    //         }
+
+    //         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    //     });
+    // }
+
     // --- Custom Dropdown Function ---
-    const dropdownToggles = document.querySelectorAll('.hs-dropdown-toggle');
+    const dropdowns = document.querySelectorAll('.hs-dropdown');
 
-    dropdownToggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
-            const menu = toggle.nextElementSibling;
-            if (menu && menu.classList.contains('hs-dropdown-menu')) {
-                // Toggle the 'hidden' class to show/hide the dropdown
-                menu.classList.toggle('hidden');
+    function closeAllDropdowns() {
+        dropdowns.forEach(dropdown => {
+            const menu = dropdown.querySelector('.hs-dropdown-menu');
+            if (menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden', 'opacity-0');
+                menu.classList.remove('opacity-100');
+            }
+        });
+    }
 
-                // Toggle opacity for transition effect
+    dropdowns.forEach(dropdown => {
+        const toggle = dropdown.querySelector('.hs-dropdown-toggle');
+        const menu = dropdown.querySelector('.hs-dropdown-menu');
+
+        if (!toggle || !menu) return;
+
+        toggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const isHidden = menu.classList.contains('hidden');
+
+            closeAllDropdowns();
+
+            if (isHidden) {
+                menu.classList.remove('hidden');
                 setTimeout(() => {
-                    menu.classList.toggle('opacity-0');
-                    menu.classList.toggle('opacity-100');
+                    menu.classList.remove('opacity-0');
+                    menu.classList.add('opacity-100');
                 }, 10);
             }
         });
+    });
+
+    document.addEventListener('click', (event) => {
+        const isClickInsideDropdown = Array.from(dropdowns).some(d => d.contains(event.target));
+        if (!isClickInsideDropdown) closeAllDropdowns();
     });
 
     // --- Product Image Gallery ---
@@ -72,15 +142,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (mainImage && thumbnailImages.length > 0) {
         thumbnailImages.forEach(thumbnail => {
             thumbnail.addEventListener('click', () => {
-                // Set the main image src to the clicked thumbnail's src
                 mainImage.src = thumbnail.src;
-
-                // Remove active border from all thumbnails
-                thumbnailImages.forEach(img => {
-                    img.classList.remove('border-2', 'border-primary');
-                });
-
-                // Add active border to the clicked thumbnail
+                thumbnailImages.forEach(img => img.classList.remove('border-2', 'border-primary'));
                 thumbnail.classList.add('border-2', 'border-primary');
             });
         });
@@ -93,9 +156,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateBtns[i].addEventListener('click', function () {
             const productId = this.dataset.product;
             const action = this.dataset.action;
-            console.log('productId:', productId, 'Action:', action);
 
-            console.log('USER:', user);
             if (user === 'AnonymousUser') {
                 addCookieItem(productId, action);
             } else {
@@ -105,55 +166,57 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function addCookieItem(productId, action) {
-        console.log('Not logged in..');
-
         if (action == 'add') {
             if (cart[productId] == undefined) {
-                cart[productId] = { 'quantity': 1 };
+                cart[productId] = { quantity: 1 };
             } else {
-                cart[productId]['quantity'] += 1;
+                cart[productId].quantity += 1;
             }
         }
 
         if (action == 'remove') {
-            cart[productId]['quantity'] -= 1;
-
-            if (cart[productId]['quantity'] <= 0) {
-                console.log('Remove Item');
-                delete cart[productId];
-            }
+            cart[productId].quantity -= 1;
+            if (cart[productId].quantity <= 0) delete cart[productId];
         }
 
-        if (action == 'remove_item') {
-            console.log('Remove Item');
-            delete cart[productId];
-        }
+        if (action == 'remove_item') delete cart[productId];
 
-        console.log('Cart:', cart);
         document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/";
         location.reload();
     }
 
-
     function updateUserOrder(productId, action) {
-        console.log('User is logged in, sending data...');
-
-        const url = '/Radhirra/update_item/';
-
-        fetch(url, {
+        fetch('/update_item/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken,
             },
-            body: JSON.stringify({ 'productId': productId, 'action': action })
+            body: JSON.stringify({ productId, action })
         })
-            .then((response) => {
-                return response.json();
-            })
-            .then((data) => {
-                console.log('Data:', data);
-                location.reload();
-            });
+            .then(res => res.json())
+            .then(() => location.reload());
+    }
+
+    // --- Hero Slider (GUARDED) ---
+    const heroSliderElement = document.querySelector('.hero-slider');
+
+    if (heroSliderElement && window.Swiper) {
+        new Swiper('.hero-slider', {
+            loop: true,
+            effect: 'fade',
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
     }
 });

@@ -39,36 +39,11 @@
         {% endif %}
         <div class="{% if not user.is_authenticated %}
             
-            
-            
-            
-            
-            
-            
             hidden sm:flex
 
-
-
-
-
-
-
           {% else %}
-            
-            
-            
-            
-            
-            
-            
+
             flex
-
-
-
-
-
-
-
           {% endif %} items-center">
           <a href="{% url 'cart' %}" class="text-gray-800 dark:text-text-main">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -86,7 +61,7 @@
         <button class="hs-dropdown-toggle text-sm font-medium text-gray-800 dark:text-text-main">Sarees</button>
         <div class="hs-dropdown-menu hidden opacity-0 absolute mt-2 bg-white dark:bg-light-bg border rounded shadow-md p-2" style="width: 231px">
           {% for category in categories %}
-            {% if category.name|title != 'Gopi Dress' and category.name|title != 'Bead Bags' and category.name|title != 'Hand Painted Bead Bags' and category.name|title != 'Cotton Hand Bags' and category.name|title != 'Cotton 3 Piece Suit Fabric' %}
+            {% if category.name|title != 'Gopi Dress' and category.name|title != 'Bead Bags' and category.name|title != 'Painted Bead Bags' and category.name|title != 'Cotton Hand Bags' and category.name|title != 'Cotton 3 Piece Suit Fabric' %}
               <a href="{% url 'all_products' %}?q={{ category.name }}" class="block px-3 py-1 text-sm">{{ category.name }}</a>
             {% endif %}
           {% endfor %}
@@ -96,7 +71,7 @@
         <button class="hs-dropdown-toggle text-sm font-medium text-gray-800 dark:text-text-main">Collections</button>
         <div class="hs-dropdown-menu hidden opacity-0 absolute mt-2 bg-white dark:bg-light-bg border rounded shadow-md p-2" style="width:231px">
           {% for category in categories %}
-            {% if category.name|title == 'Gopi Dress' or category.name|title == 'Bead Bags' or category.name|title == 'Hand Painted Bead Bags' or category.name|title == 'Cotton Hand Bags' or category.name|title == 'Cotton 3 Piece Suit Fabric' %}
+            {% if category.name|title == 'Gopi Dress' or category.name|title == 'Bead Bags' or category.name|title == 'Painted Bead Bags' or category.name|title == 'Cotton Hand Bags' or category.name|title == 'Cotton 3 Piece Suit Fabric' %}
               <a href="{% url 'all_products' %}?q={{ category.name }}" class="block px-3 py-1 text-sm">{{ category.name|title }}</a>
             {% endif %}
           {% endfor %}

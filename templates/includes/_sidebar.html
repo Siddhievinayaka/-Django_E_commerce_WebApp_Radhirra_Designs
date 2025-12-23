@@ -54,7 +54,7 @@
         </button>
         <div class="dropdown-container hidden pl-8" style="max-height: 150px; overflow-y: auto;">
           {% for category in categories %}
-            {% if category.name|title != 'Gopi Dress' and category.name|title != 'Bead Bags' and category.name|title != 'Hand Painted Bead Bags' and category.name != 'Cotton hand bags' and category.name|title != 'Cotton 3 Piece Suit Fabric' %}
+            {% if category.name|title != 'Gopi Dress' and category.name|title != 'Bead Bags' and category.name|title != 'Painted Bead Bags' and category.name != 'Cotton hand bags' and category.name|title != 'Cotton 3 Piece Suit Fabric' %}
               <a href="{% url 'all_products' %}?q={{ category.name }}" class="block py-2 px-4">{{ category.name }}</a>
             {% endif %}
           {% endfor %}
@@ -74,7 +74,7 @@
         </button>
         <div class="dropdown-container hidden pl-8">
           {% for category in categories %}
-            {% if category.name|title == 'Gopi Dress' or category.name|title == 'Bead Bags' or category.name|title == 'Hand Painted Bead Bags' or category.name == 'Cotton hand bags' or category.name|title == 'Cotton 3 Piece Suit Fabric' %}
+            {% if category.name|title == 'Gopi Dress' or category.name|title == 'Bead Bags' or category.name|title == 'Painted Bead Bags' or category.name == 'Cotton hand bags' or category.name|title == 'Cotton 3 Piece Suit Fabric' %}
               <a href="{% url 'all_products' %}?q={{ category.name }}" class="block py-2 px-4">{{ category.name|title }}</a>
             {% endif %}
           {% endfor %}
