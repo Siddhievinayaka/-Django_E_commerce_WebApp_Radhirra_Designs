@@ -121,7 +121,7 @@ def product_detail(request, pk):
     else:
         form = ReviewForm(instance=user_review) if user_review else ReviewForm()
     
-    recommended_products = Product.objects.exclude(id=pk)[:4]
+    recommended_products = Product.objects.filter(category=product.category).exclude(id=pk)[:4]
     
     context = {
         'product': product,
@@ -151,13 +151,155 @@ def cart(request):
 
 
 def checkout(request):
-    data = cartData(request)
-    cartItems = data["cartItems"]
-    order = data["order"]
-    items = data["items"]
-
-    context = {"items": items, "order": order, "cartItems": cartItems}
+    selected_item_ids = request.GET.get('items', '').split(',') if request.GET.get('items') else []
+    
+    if selected_item_ids and selected_item_ids != ['']:
+        # Filter items based on selected IDs
+        items = CartItem.objects.filter(id__in=selected_item_ids, cart__user=request.user if request.user.is_authenticated else None).select_related("product").prefetch_related("product__images")
+    else:
+        # Fallback to all cart items
+        data = cartData(request)
+        items = data["items"]
+    
+    # Calculate totals for selected items
+    cart_total = sum(item.get_total for item in items)
+    cart_items_count = sum(item.quantity for item in items)
+    
+    # Create a mock order object for template compatibility
+    class MockOrder:
+        def get_cart_total(self):
+            return cart_total
+    
+    order = MockOrder()
+    
+    context = {"items": items, "order": order, "cartItems": cart_items_count}
     return render(request, "checkout.html", context)
+
+
+def create_whatsapp_order(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        selected_item_ids = data.get('selected_items', [])
+        user_data = data.get('user_data', {})
+        
+        # Get selected cart items
+        cart_items = CartItem.objects.filter(id__in=selected_item_ids).select_related('product')
+        
+        if not cart_items.exists():
+            return JsonResponse({'success': False, 'error': 'No items selected'})
+        
+        # Calculate total
+        total_amount = sum(item.get_total for item in cart_items)
+        
+        # Create order
+        order = Order.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            order_type='whatsapp',
+            order_status='pending',
+            total_amount=total_amount,
+            contact_value=user_data.get('phone', ''),
+            transaction_id=f"WA_{datetime.datetime.now().timestamp()}"
+        )
+        
+        # Create order items with price snapshot
+        for cart_item in cart_items:
+            current_price = cart_item.product.sale_price if cart_item.product.sale_price else cart_item.product.regular_price
+            variant_info = f"Size: {cart_item.size or 'N/A'}, Sleeve: {cart_item.get_sleeve_display() if cart_item.sleeve else 'N/A'}"
+            
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price_at_order=current_price,
+                variant_info=variant_info,
+                user_note=user_data.get('note', '')
+            )
+        
+        # Create shipping address if provided
+        if user_data.get('address'):
+            ShippingAddress.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                order=order,
+                address=user_data.get('address', ''),
+                city=user_data.get('city', ''),
+                state=user_data.get('state', ''),
+                zipcode=user_data.get('zipcode', ''),
+                phone_number=user_data.get('phone', '')
+            )
+        
+        # Remove items from cart after successful order creation
+        cart_items.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'order_id': order.id,
+            'message': 'Order created successfully'
+        })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def create_email_order(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        selected_item_ids = data.get('selected_items', [])
+        user_data = data.get('user_data', {})
+        
+        # Get selected cart items
+        cart_items = CartItem.objects.filter(id__in=selected_item_ids).select_related('product')
+        
+        if not cart_items.exists():
+            return JsonResponse({'success': False, 'error': 'No items selected'})
+        
+        # Calculate total
+        total_amount = sum(item.get_total for item in cart_items)
+        
+        # Create order
+        order = Order.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            order_type='email',
+            order_status='pending',
+            total_amount=total_amount,
+            contact_value=user_data.get('email', ''),
+            transaction_id=f"EM_{datetime.datetime.now().timestamp()}"
+        )
+        
+        # Create order items with price snapshot
+        for cart_item in cart_items:
+            current_price = cart_item.product.sale_price if cart_item.product.sale_price else cart_item.product.regular_price
+            variant_info = f"Size: {cart_item.size or 'N/A'}, Sleeve: {cart_item.get_sleeve_display() if cart_item.sleeve else 'N/A'}"
+            
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price_at_order=current_price,
+                variant_info=variant_info,
+                user_note=user_data.get('note', '')
+            )
+        
+        # Create shipping address if provided
+        if user_data.get('address'):
+            ShippingAddress.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                order=order,
+                address=user_data.get('address', ''),
+                city=user_data.get('city', ''),
+                state=user_data.get('state', ''),
+                zipcode=user_data.get('zipcode', ''),
+                phone_number=user_data.get('phone', '')
+            )
+        
+        # Remove items from cart after successful order creation
+        cart_items.delete()
+        
+        return JsonResponse({
+            'success': True,
+            'order_id': order.id,
+            'message': 'Order created successfully'
+        })
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
 def updateItem(request):
@@ -442,6 +584,9 @@ def get_cart_items(request):
     cart_data['cart_items_count'] = sum(item.quantity for item in items)
     
     return JsonResponse(cart_data)
+
+def get_cart_drawer(request):
+    return render(request, 'includes/cart_drawer.html')
 
 def add_to_cart_ajax(request):
     if request.method == 'POST':

@@ -9,11 +9,15 @@ urlpatterns = [
     path("checkout/", views.checkout, name="checkout"),
     path("contact/", views.contact, name="contact"),
     path("add_to_cart/", views.add_to_cart_ajax, name="add_to_cart_ajax"),
+    path("get_cart_drawer/", views.get_cart_drawer, name="get_cart_drawer"),
     path("get_cart_items/", views.get_cart_items, name="get_cart_items"),
     path("update_cart_item/", views.update_cart_item, name="update_cart_item"),
     path("update_item/", views.updateItem, name="update_item"),
     path("process_order/", views.processOrder, name="process_order"),
     path("search_suggest/", views.search_suggest, name="search_suggest"),
+    # New WhatsApp/Email order endpoints
+    path("create_whatsapp_order/", views.create_whatsapp_order, name="create_whatsapp_order"),
+    path("create_email_order/", views.create_email_order, name="create_email_order"),
 ]
 
 urlpatterns += [

@@ -66,6 +66,10 @@
             {% for item in items %}
               <div class="cart-item bg-white dark:bg-light-bg rounded-2xl shadow-lg p-6 transform hover:scale-105 transition-all duration-300 animate-slide-in" data-item-id="{{ item.id }}" style="animation-delay: {{ forloop.counter0|add:1 }}00ms">
                 <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                  <!-- Checkbox -->
+                  <div class="flex-shrink-0">
+                    <input type="checkbox" id="item-{{ item.id }}" class="item-checkbox w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" data-item-id="{{ item.id }}" checked>
+                  </div>
                   <!-- Product Image -->
                   <div class="flex-shrink-0">
                     <div class="w-24 h-24 md:w-32 md:h-32 rounded-xl overflow-hidden shadow-md">
@@ -86,9 +90,9 @@
                     <!-- Size and Sleeve -->
                     <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
                       {% if item.size %}
-                        <span class="px-3 py-1 bg-primary bg-opacity-20 text-primary text-sm font-medium rounded-full">Size: {{ item.size|upper }}</span>
+                        <span class="px-3 py-1 bg-primary bg-opacity-20 text-primary text-sm font-medium rounded-full" style="background-color: rgb(13 110 253 / 30%) !important;">Size: {{ item.size|upper }}</span>
                       {% endif %} {% if item.sleeve %}
-                        <span class="px-3 py-1 bg-secondary bg-opacity-20 text-secondary text-sm font-medium rounded-full">Sleeve: {{ item.get_sleeve_display }}</span>
+                        <span class="px-3 py-1 bg-secondary bg-opacity-20 text-secondary text-sm font-medium rounded-full" style="background-color: rgb(108 117 125 / 30%) !important;">Sleeve: {{ item.get_sleeve_display }}</span>
                       {% endif %}
                     </div>
 
@@ -106,7 +110,7 @@
 
                   <!-- Quantity Controls -->
                   <div class="flex items-center space-x-3">
-                    <button onclick="updateQuantity({{ item.id }}, 'decrease')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-primary hover:text-white transition-all duration-200 flex items-center justify-center">
+                    <button onclick="updateQuantity({{ item.id }}, 'decrease')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-primary hover:text-white transition-all duration-200 flex items-center justify-center" style="background-color: rgb(168 193 233 / 41%) !important">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                       </svg>
@@ -114,7 +118,7 @@
 
                     <span class="w-12 text-center font-semibold text-gray-900 dark:text-text-main" data-quantity="{{ item.id }}">{{ item.quantity }}</span>
 
-                    <button onclick="updateQuantity({{ item.id }}, 'increase')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-primary hover:text-white transition-all duration-200 flex items-center justify-center">
+                    <button onclick="updateQuantity({{ item.id }}, 'increase')" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-primary hover:text-white transition-all duration-200 flex items-center justify-center" style="background-color: rgb(168 193 233 / 41%) !important">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
@@ -162,7 +166,7 @@
                 <span data-cart-total>₹{{ cart_total }}</span>
               </div>
 
-              <a href="{% url 'checkout' %}" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-4 px-6 rounded-lg text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl mb-4">Proceed to Checkout</a>
+              <a href="#" onclick="proceedToCheckout()" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-4 px-6 rounded-lg text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl mb-4">Proceed to Checkout</a>
 
               <a href="{% url 'all_products' %}" class="block w-full text-center text-primary hover:text-secondary font-medium py-2 transition-colors">← Continue Shopping</a>
             </div>
@@ -184,103 +188,18 @@
     </div>
   </div>
 
-  <script src="{% static 'js/cart.js' %}"></script>
   <script>
-    function getCookie(name) {
-      let cookieValue = null
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';')
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim()
-          if (cookie.substring(0, name.length + 1) === name + '=') {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
-            break
-          }
-        }
+    function proceedToCheckout() {
+      const selectedItems = document.querySelectorAll('.item-checkbox:checked');
+      if (selectedItems.length === 0) {
+        alert('Please select at least one item to proceed to checkout.');
+        return;
       }
-      return cookieValue
-    }
-    
-    function updateQuantity(itemId, action) {
-      const csrftoken = getCookie('csrftoken')
-    
-      fetch('/update_cart_item/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken
-        },
-        body: JSON.stringify({
-          item_id: itemId,
-          action: action
-        })
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            if (data.removed) {
-              // Remove item with animation
-              const itemElement = document.querySelector(`[data-item-id="${itemId}"]`)
-              itemElement.style.transform = 'translateX(-100%)'
-              itemElement.style.opacity = '0'
-              setTimeout(() => {
-                itemElement.remove()
-                updateTotals(data.cart_total, data.cart_items_count)
-              }, 300)
-            } else {
-              // Update quantity and totals with animation
-              const quantityEl = document.querySelector(`[data-quantity="${itemId}"]`)
-              const itemTotalEl = document.querySelector(`[data-item-total="${itemId}"]`)
-    
-              quantityEl.style.transform = 'scale(1.2)'
-              quantityEl.textContent = data.quantity
-              setTimeout(() => {
-                quantityEl.style.transform = 'scale(1)'
-              }, 200)
-    
-              itemTotalEl.style.transform = 'scale(1.1)'
-              itemTotalEl.textContent = `₹${data.item_total}`
-              setTimeout(() => {
-                itemTotalEl.style.transform = 'scale(1)'
-              }, 200)
-    
-              updateTotals(data.cart_total, data.cart_items_count)
-            }
-          }
-        })
-    }
-    
-    function removeItem(itemId) {
-      if (confirm('Are you sure you want to remove this item?')) {
-        updateQuantity(itemId, 'remove')
-      }
-    }
-    
-    function updateTotals(cartTotal, itemsCount) {
-      // Update all cart total elements with animation
-      document.querySelectorAll('[data-cart-total]').forEach((el) => {
-        el.style.transform = 'scale(1.1)'
-        el.textContent = `₹${cartTotal}`
-        setTimeout(() => {
-          el.style.transform = 'scale(1)'
-        }, 200)
-      })
-    
-      // Update items count
-      const itemsCountEl = document.querySelector('[data-items-count]')
-      if (itemsCountEl) {
-        itemsCountEl.style.transform = 'scale(1.1)'
-        itemsCountEl.textContent = itemsCount
-        setTimeout(() => {
-          itemsCountEl.style.transform = 'scale(1)'
-        }, 200)
-      }
-    
-      // Update header cart count
-      const headerCartCount = document.getElementById('cart-total')
-      if (headerCartCount) {
-        headerCartCount.textContent = itemsCount
-      }
+      
+      const selectedIds = Array.from(selectedItems).map(cb => cb.dataset.itemId);
+      const url = new URL('{% url "checkout" %}', window.location.origin);
+      url.searchParams.set('items', selectedIds.join(','));
+      window.location.href = url.toString();
     }
   </script>
 {% endblock %}

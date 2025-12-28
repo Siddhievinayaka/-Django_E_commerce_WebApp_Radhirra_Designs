@@ -162,7 +162,7 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="featured-products">
         {% for product in featured_products %}
-        <div class="group" data-filter="{% if product.is_new_arrival %}new{% elif product.is_best_seller %}best{% endif %}">
+        <div class="group" data-filter="{% if product.is_new_arrival %}new{% elif product.is_best_seller %}best{% else %}all{% endif %}" data-debug="{{ product.name }}: new={{ product.is_new_arrival }}, best={{ product.is_best_seller }}">
           <div class="relative overflow-hidden rounded-lg mb-4">
             {% if product.is_new_arrival %}
             <span class="absolute top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded z-10">New</span>
@@ -172,7 +172,7 @@
             <span class="absolute top-3 left-3 bg-rose-500 text-white text-xs px-2 py-1 rounded z-10">Sale</span>
             {% endif %}
             <img src="{{ product.main_image.image.url }}" alt="{{ product.name }}" class="w-full h-80 object-cover object-top" />
-            <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div class="absolute inset-0 bg-black/5 group-hover:!opacity-100 transition-opacity flex items-center justify-center" style="opacity: 0">
               <a href="{% url 'product_detail' product.id %}" class="bg-white text-gray-900 w-10 h-10 rounded-full flex items-center justify-center shadow-md mx-1 hover:bg-gray-100 transition"><i class="ri-eye-line"></i></a>
               <button class="bg-white text-gray-900 w-10 h-10 rounded-full flex items-center justify-center shadow-md mx-1 hover:bg-gray-100 transition"><i class="ri-heart-line"></i></button>
               <a href="{% url 'product_detail' product.id %}" class="bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center shadow-md mx-1 hover:bg-primary/90 transition"><i class="ri-shopping-bag-line"></i></a>

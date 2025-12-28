@@ -4,203 +4,248 @@
 {% block content %}
   <div class="container mx-auto px-4 py-8">
     <div class="flex flex-col lg:flex-row gap-8">
-      <!-- Checkout Steps -->
-      <div class="lg:w-3/4">
-        <div class="bg-white dark:bg-light-bg rounded-lg shadow-md p-6">
-          <!-- Progress Bar -->
-          <div class="flex justify-between items-center mb-8">
-            <div class="step active" id="step-1">
-              <div class="step-icon">1</div>
-              <div class="step-label">Shipping</div>
-            </div>
-            <div class="flex-auto border-t-2 transition duration-500 ease-in-out border-gray-300"></div>
-            <div class="step" id="step-2">
-              <div class="step-icon">2</div>
-              <div class="step-label">Payment</div>
-            </div>
-            <div class="flex-auto border-t-2 transition duration-500 ease-in-out border-gray-300"></div>
-            <div class="step" id="step-3">
-              <div class="step-icon">3</div>
-              <div class="step-label">Confirmation</div>
-            </div>
+      <!-- Selected Items Display -->
+      <div class="lg:w-1/2">
+        <div class="bg-white dark:bg-light-bg rounded-lg shadow-md p-6 mb-6">
+          <h2 class="text-2xl font-bold mb-6">Selected Items</h2>
+          <div class="space-y-4">
+            {% for item in items %}
+              <div class="cart-item bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center space-x-4">
+                  <div class="w-20 h-20 rounded-lg overflow-hidden">
+                    {% if item.product.main_image %}
+                      <img src="{{ item.product.main_image.image.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover" />
+                    {% else %}
+                      <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span class="text-gray-400 text-xs">No Image</span>
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="font-semibold">{{ item.product.name }}</h3>
+                    <div class="flex gap-2 mt-1">
+                      {% if item.size %}<span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">{{ item.size|upper }}</span>{% endif %}
+                      {% if item.sleeve %}<span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">{{ item.get_sleeve_display }}</span>{% endif %}
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">Qty: {{ item.quantity }}</p>
+                    <p class="font-semibold text-lg">₹{{ item.get_total }}</p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
           </div>
-
+          <hr class="my-4" />
+          <div class="flex justify-between font-bold text-xl">
+            <span>Total</span>
+            <span>₹{{ order.get_cart_total }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Checkout Form -->
+      <div class="lg:w-1/2">
+        <div class="bg-white dark:bg-light-bg rounded-lg shadow-md p-6">
           <form id="form">
             <!-- Shipping Information -->
             <div id="shipping-info">
               <h2 class="text-2xl font-bold mb-4">Shipping Information</h2>
               {% if user.is_authenticated %}
-                <p class="mb-4">Shipping to {{ user.customer.name }}</p>
+                <p class="mb-4">Shipping to {{ user.username }}</p>
               {% else %}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <input required class="form-input" type="text" name="name" placeholder="Full Name" />
                   <input required class="form-input" type="email" name="email" placeholder="Email Address" />
                 </div>
               {% endif %}
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input class="form-input block w-full p-3 ps-9 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs rounded placeholder:text-body" type="text" name="address" placeholder="Address" />
-                <input class="form-input block w-full p-3 ps-9 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs rounded placeholder:text-body" type="text" name="city" placeholder="City" />
-                <input class="form-input block w-full p-3 ps-9 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs rounded placeholder:text-body" type="text" name="state" placeholder="State" />
-                <input class="form-input block w-full p-3 ps-9 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs rounded placeholder:text-body" type="text" name="zipcode" placeholder="Zip Code" />
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input class="form-input block w-full p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary" type="text" name="address" placeholder="Address" required />
+                <input class="form-input block w-full p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary" type="text" name="city" placeholder="City" required />
+                <input class="form-input block w-full p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary" type="text" name="state" placeholder="State" required />
+                <input class="form-input block w-full p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary" type="text" name="zipcode" placeholder="Zip Code" required />
               </div>
+              
+              <!-- Phone Number -->
+              <div class="mb-4">
+                <input class="form-input block w-full p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary" type="tel" name="phone" placeholder="Phone Number" required />
+              </div>
+              
+              <!-- Order Note -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Order Note (Optional)</label>
+                <textarea name="note" rows="3" class="form-input block w-full p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary focus:border-primary" placeholder="Any special instructions or requests..."></textarea>
+              </div>
+              
               <div class="flex justify-end mt-6">
-                <button type="button" id="continue-to-payment" class="btn-primary">Continue to Payment</button>
-              </div>
-            </div>
-
-            <!-- Payment Information -->
-            <div id="payment-info" class="hidden">
-              <h2 class="text-2xl font-bold mb-4">Payment Method</h2>
-              <p class="text-gray-600 dark:text-text-secondary mb-6">Select a payment method.</p>
-              <!-- Placeholder for payment options like PayPal -->
-              <div id="paypal-button-container"></div>
-              <div class="flex justify-between mt-6">
-                <button type="button" id="back-to-shipping" class="btn-secondary">Back to Shipping</button>
+                <button type="button" id="order-now" class="bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-8 rounded-lg transition-colors">Order Now</button>
               </div>
             </div>
           </form>
         </div>
       </div>
-
-      <!-- Order Summary -->
-      <div class="lg:w-1/4">
-        <div class="bg-white dark:bg-light-bg rounded-lg shadow-md p-6">
-          <h2 class="text-2xl font-bold mb-4">Order Summary</h2>
-          {% for item in items %}
-            <div class="flex justify-between items-center mb-4">
-              <div class="flex items-center">
-                <img class="h-16 w-16 object-contain rounded-lg mr-4" src="{{ item.product.main_image.image.url }}" alt="{{ item.product.name }}" />
-                <div>
-                  <p class="font-semibold">{{ item.product.name }}</p>
-                  <p class="text-sm text-gray-600 dark:text-text-secondary">Qty: {{ item.quantity }}</p>
-                </div>
-              </div>
-              <p class="font-semibold">₹{{ item.get_total|floatformat:2 }}</p>
-            </div>
-          {% endfor %}
-          <hr class="my-4" />
-          <div class="flex justify-between">
-            <p class="text-gray-600 dark:text-text-secondary">Items</p>
-            <p>₹{{ order.get_cart_total|floatformat:2 }}</p>
-          </div>
-          <div class="flex justify-between">
-            <p class="text-gray-600 dark:text-text-secondary">Shipping</p>
-            <p>Free</p>
-          </div>
-          <hr class="my-4" />
-          <div class="flex justify-between font-bold text-lg">
-            <p>Total</p>
-            <p>₹{{ order.get_cart_total|floatformat:2 }}</p>
-          </div>
-          <a href="{% url 'cart' %}" class="text-primary hover:underline mt-4 block text-center">&#x2190; Back to Cart</a>
-        </div>
-      </div>
     </div>
   </div>
 
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
-
   <script>
-    // Your PayPal client ID - replace with your actual client ID
-    var clientID = 'YOUR_CLIENT_ID'
+    document.getElementById('order-now').addEventListener('click', function() {
+      showOrderDialog();
+    });
     
-    var total = '{{ order.get_cart_total|floatformat:2 }}'
+    function showOrderDialog() {
+      const dialog = document.createElement('div');
+      dialog.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      dialog.innerHTML = `
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+          <h3 class="text-xl font-bold mb-4">Choose Order Method</h3>
+          <p class="text-gray-600 mb-6">How would you like to place your order?</p>
+          <div class="space-y-3">
+            <button onclick="orderViaWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.63"/>
+              </svg>
+              <span>Order via WhatsApp</span>
+            </button>
+            <button onclick="orderViaEmail()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>Order via Email</span>
+            </button>
+          </div>
+          <button onclick="closeDialog()" class="w-full mt-4 text-gray-500 hover:text-gray-700 py-2">Cancel</button>
+        </div>
+      `;
+      document.body.appendChild(dialog);
+      window.currentDialog = dialog;
+    }
     
-    // Render the PayPal button into #paypal-button-container
-    paypal
-      .Buttons({
-        style: {
-          color: 'blue',
-          shape: 'rect',
-          label: 'pay',
-          height: 40
-        },
-        createOrder: function (data, actions) {
-          return actions.order.create({
-            purchase_units: [
-              {
-                amount: {
-                  value: total
-                }
-              }
-            ]
-          })
-        },
-        onApprove: function (data, actions) {
-          return actions.order.capture().then(function (details) {
-            submitFormData()
-          })
-        }
-      })
-      .render('#paypal-button-container')
-    
-    // Step navigation
-    const step1 = document.getElementById('step-1')
-    const step2 = document.getElementById('step-2')
-    const shippingInfo = document.getElementById('shipping-info')
-    const paymentInfo = document.getElementById('payment-info')
-    
-    document.getElementById('continue-to-payment').addEventListener('click', function () {
-      shippingInfo.classList.add('hidden')
-      paymentInfo.classList.remove('hidden')
-      step1.classList.remove('active')
-      step2.classList.add('active')
-    })
-    
-    document.getElementById('back-to-shipping').addEventListener('click', function () {
-      paymentInfo.classList.add('hidden')
-      shippingInfo.classList.remove('hidden')
-      step2.classList.remove('active')
-      step1.classList.add('active')
-    })
-    
-    function submitFormData() {
-      console.log('Payment completed')
-    
-      var userFormData = {
-        name: null,
-        email: null,
-        total: total
+    function closeDialog() {
+      if (window.currentDialog) {
+        document.body.removeChild(window.currentDialog);
+        window.currentDialog = null;
       }
+    }
     
-      var shippingInfoData = {
-        address: null,
-        city: null,
-        state: null,
-        zipcode: null
-      }
+    function getOrderData() {
+      const userName = '{% if user.is_authenticated %}{{ user.username }}{% else %}' + (document.querySelector('input[name="name"]')?.value || 'Guest') + '{% endif %}';
+      const userId = '{% if user.is_authenticated %}{{ user.id }}{% else %}Guest{% endif %}';
+      const address = document.querySelector('input[name="address"]').value;
+      const city = document.querySelector('input[name="city"]').value;
+      const state = document.querySelector('input[name="state"]').value;
+      const zipcode = document.querySelector('input[name="zipcode"]').value;
+      const note = document.querySelector('textarea[name="note"]').value;
+      
+      const fullAddress = `${address}, ${city}, ${state} ${zipcode}`;
+      
+      let orderDetails = `Order Details:\n\n`;
+      orderDetails += `Customer: ${userName}\n`;
+      orderDetails += `User ID: ${userId}\n\n`;
+      
+      {% for item in items %}
+      orderDetails += `Product Name: {{ item.product.name }}\n`;
+      orderDetails += `Product ID: {{ item.product.id }}\n`;
+      orderDetails += `Product Price: ₹{{ item.product.sale_price|default:item.product.regular_price }}\n`;
+      orderDetails += `Quantity: {{ item.quantity }}\n`;
+      {% if item.size %}orderDetails += `Size: {{ item.size }}\n`;{% endif %}
+      {% if item.sleeve %}orderDetails += `Sleeve: {{ item.get_sleeve_display }}\n`;{% endif %}
+      orderDetails += `Subtotal: ₹{{ item.get_total }}\n`;
+      orderDetails += `Product URL: ${window.location.origin}/product/{{ item.product.id }}/\n\n`;
+      {% endfor %}
+      
+      orderDetails += `Total Amount: ₹{{ order.get_cart_total }}\n\n`;
+      orderDetails += `Shipping Address: ${fullAddress}\n\n`;
+      if (note) orderDetails += `Order Note: ${note}\n\n`;
+      
+      return orderDetails;
+    }
     
-      if (document.querySelector('input[name="address"]')) {
-        shippingInfoData.address = document.querySelector('input[name="address"]').value
-        shippingInfoData.city = document.querySelector('input[name="city"]').value
-        shippingInfoData.state = document.querySelector('input[name="state"]').value
-        shippingInfoData.zipcode = document.querySelector('input[name="zipcode"]').value
-      }
+    function orderViaWhatsApp() {
+      createOrder('whatsapp');
+    }
     
-      if ('{{user}}' === 'AnonymousUser') {
-        userFormData.name = document.querySelector('input[name="name"]').value
-        userFormData.email = document.querySelector('input[name="email"]').value
-      }
+    function orderViaEmail() {
+      createOrder('email');
+    }
     
-      var url = "{% url 'process_order' %}"
-      fetch(url, {
+    function createOrder(orderType) {
+      const form = document.getElementById('form');
+      const formData = new FormData(form);
+      
+      // Get selected item IDs from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const selectedItems = urlParams.get('items')?.split(',') || [];
+      
+      const userData = {
+        name: '{% if user.is_authenticated %}{{ user.username }}{% else %}' + (formData.get('name') || '') + '{% endif %}',
+        email: '{% if user.is_authenticated %}{{ user.email }}{% else %}' + (formData.get('email') || '') + '{% endif %}',
+        phone: formData.get('phone') || '',
+        address: formData.get('address') || '',
+        city: formData.get('city') || '',
+        state: formData.get('state') || '',
+        zipcode: formData.get('zipcode') || '',
+        note: formData.get('note') || ''
+      };
+      
+      const orderData = {
+        selected_items: selectedItems,
+        user_data: userData
+      };
+      
+      const endpoint = orderType === 'whatsapp' ? '{% url "create_whatsapp_order" %}' : '{% url "create_email_order" %}';
+      
+      fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': csrftoken
+          'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({ form: userFormData, shipping: shippingInfoData })
+        body: JSON.stringify(orderData)
       })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log('Success:', data)
-          alert('Transaction completed')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Order created successfully, now send message
+          const orderDetails = getOrderData();
+          
+          if (orderType === 'whatsapp') {
+            const whatsappNumber = '+919821213730';
+            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
+            window.open(whatsappUrl, '_blank');
+          } else {
+            const subject = 'New Order Request – Order #' + data.order_id;
+            const emailUrl = `mailto:meghnachini@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(orderDetails)}`;
+            window.location.href = emailUrl;
+          }
+          
+          // Redirect to success page or show success message
+          setTimeout(() => {
+            alert('Order placed successfully! Order ID: #' + data.order_id);
+            window.location.href = '{% url "index" %}';
+          }, 2000);
+        } else {
+          alert('Error creating order: ' + data.error);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating order. Please try again.');
+      });
+      
+      closeDialog();
+    }
     
-          // Clear cart from cookie
-          document.cookie = 'cart=' + JSON.stringify({}) + ';domain=;path=/'
-    
-          window.location.href = "{% url 'index' %}"
-        })
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
     }
   </script>
 {% endblock %}

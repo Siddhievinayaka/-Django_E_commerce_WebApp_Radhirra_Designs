@@ -97,15 +97,40 @@ class ProductImage(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(  # Changed from customer to user
+    ORDER_TYPE_CHOICES = [
+        ('whatsapp', 'WhatsApp'),
+        ('email', 'Email'),
+    ]
+    
+    ORDER_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
     )
     date_ordered = models.DateTimeField(auto_now_add=True)
-    complete = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    complete = models.BooleanField(default=False)  # Keep for backward compatibility
     transaction_id = models.CharField(max_length=100, null=True)
+    
+    # New fields for WhatsApp/Email checkout
+    order_type = models.CharField(max_length=10, choices=ORDER_TYPE_CHOICES, default='whatsapp')
+    order_status = models.CharField(max_length=10, choices=ORDER_STATUS_CHOICES, default='pending')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    contact_value = models.CharField(max_length=255, null=True, blank=True)  # phone or email
 
     def __str__(self):
-        return str(self.id)
+        return f"Order #{self.id} - {self.get_order_status_display()}"
+    
+    def save(self, *args, **kwargs):
+        # Auto-calculate total_amount if not set
+        if not self.total_amount and self.pk:
+            self.total_amount = self.get_cart_total
+        super().save(*args, **kwargs)
 
     @property
     def shipping(self):
@@ -134,31 +159,39 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
     quantity = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
+    
+    # New fields for order snapshot
+    price_at_order = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    variant_info = models.CharField(max_length=255, null=True, blank=True)  # size/color/customization
+    user_note = models.TextField(null=True, blank=True)  # User's order note
 
     @property
     def get_total(self):
+        # Use price_at_order if available, otherwise current product price
+        if self.price_at_order:
+            return self.price_at_order * self.quantity
         price = (
             self.product.sale_price
             if self.product.sale_price
             else self.product.regular_price
         )
-        total = price * self.quantity
-        return total
+        return price * self.quantity
 
 
 class ShippingAddress(models.Model):
-    user = models.ForeignKey(  # Changed from customer to user
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True
     )
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
-    address = models.CharField(max_length=200, null=False)
-    city = models.CharField(max_length=200, null=False)
-    state = models.CharField(max_length=200, null=False)
-    zipcode = models.CharField(max_length=200, null=False)
+    address = models.CharField(max_length=200, null=True, blank=True)  # Allow empty initially
+    city = models.CharField(max_length=200, null=True, blank=True)
+    state = models.CharField(max_length=200, null=True, blank=True)
+    zipcode = models.CharField(max_length=200, null=True, blank=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.address
+        return self.address or f"Address for Order #{self.order.id if self.order else 'Unknown'}"
 
 
 class Cart(models.Model):

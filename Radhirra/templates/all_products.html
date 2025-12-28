@@ -15,19 +15,20 @@
       <!-- Search and Sort Controls -->
       <div class="mb-8 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <!-- Search Form -->
-        <form method="GET" class="flex gap-2 w-full sm:w-auto">
-          <input type="search" name="q" value="{{ query }}" placeholder="Search products..." class="flex-1 sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-          <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">Search</button>
+        <form method="GET" class="flex gap-2 w-full sm:w-auto max-[500px]:flex-col">
+          <input type="search" name="q" value="{{ query }}" placeholder="Search products..." class="flex-1 sm:w-64 px-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <div class="flex gap-2">
+          <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors" style="width: 100%">Search</button>
           {% if query %}
-            <a href="{% url 'all_products' %}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">Clear</a>
-          {% endif %}
+            <a href="{% url 'all_products' %}" class="px-4 py-2 bg-gray-200 block text-gray-700 rounded-lg hover:bg-gray-300 transition-colors" style="width: 100%">Clear</a>
+          {% endif %} </div>
         </form>
         
         <!-- Sort Options -->
         <form method="GET" class="flex gap-2 items-center">
           {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
           <label for="sort" class="text-sm font-medium text-gray-700">Sort by:</label>
-          <select name="sort" id="sort" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <select name="sort" id="sort" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
             <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Relevance</option>
             <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
             <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>

@@ -47,7 +47,7 @@
         </div>
 
         <div class="mt-6">
-          <h3 class="sr-only">Description</h3>
+          <h3 class="text-sm font-medium text-gray-900 dark:text-text-main mb-3">Lehenga / Skirt</h3>
           <div class="text-base text-gray-700 space-y-6" >
             <p>{{ product.description }}</p>
           </div>
@@ -55,7 +55,7 @@
 
         <div class="mt-6">
           <h3 class="text-sm font-medium text-gray-900 dark:text-text-main mb-3">Size</h3>
-          <div class="flex items-center space-x-3" id="size-options">
+          <div class="flex items-center space-x-3 flex-wrap" id="size-options">
             {% for size in product.SIZE_CHOICES %}
               <label class="size-option border rounded-md py-2 px-3 flex items-center justify-center text-sm font-medium uppercase cursor-pointer focus:outline-none bg-white text-gray-900 border-gray-200 hover:bg-gray-50 dark:bg-gray-700 dark:text-text-main dark:border-gray-600 dark:hover:bg-gray-600 transition-colors">
                 <input type="radio" name="size" value="{{ size.0 }}" class="sr-only size-input">
@@ -77,9 +77,14 @@
           </div>
         </div>
 
-        <div class="mt-10 flex rounded">
+        <div class="mt-10 flex space-x-4">
           <button onclick="addToCart()" data-product="{{product.id}}" class="flex-1 rounded border border-transparent rounded-button py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all" style="background-color: #9f77c9;">
             Add to Cart
+          </button>
+          <button onclick="shareProduct()" class="px-4 py-3 border border-gray-300 rounded-button text-gray-700 hover:bg-gray-50 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+            </svg>
           </button>
         </div>
         
@@ -102,7 +107,7 @@
         <div class="mt-10">
           <div class="hs-dropdown relative [--strategy:absolute] inline-flex flex flex-col justify-between w-full ">
             <button id="hs-dropdown-specifications" type="button" class="hs-dropdown-toggle flex justify-between w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="menu" aria-expanded="false" aria-label="Specifications Dropdown">
-              Specifications
+              Blouse
               <svg class="hs-dropdown-open:rotate-180 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m6 9 6 6 6-6"></path>
               </svg>
@@ -118,7 +123,7 @@
         <div class="mt-10">
           <div class="hs-dropdown relative [--strategy:absolute] inline-flex flex justify-between flex-col w-full">
             <button id="hs-dropdown-seller-info" type="button" class="hs-dropdown-toggle flex justify-between w-full py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none" aria-haspopup="menu" aria-expanded="false" aria-label="Seller Information Dropdown">
-              Seller Information
+              Dupatta
               <svg class="hs-dropdown-open:rotate-180 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m6 9 6 6 6-6"></path>
               </svg>
@@ -240,7 +245,6 @@
   </div>
 </div>
 <script src="{% static 'js/cart.js' %}"></script>
-{% endblock %}
 <script>
 // Size and sleeve selection
 document.querySelectorAll('.size-option').forEach(option => {
@@ -313,4 +317,31 @@ document.getElementById('add-to-cart-btn').addEventListener('click', function() 
     }
   });
 });
+
+
+function shareProduct() {
+  const productName = '{{ product.name|escapejs }}';
+  const productUrl = window.location.href;
+
+  const message = `${productName}\n\n${productUrl}`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: productName,
+      text: message,
+      url: productUrl
+    }).catch(() => fallbackShare(message));
+  } else {
+    fallbackShare(message);
+  }
+}
+
+function fallbackShare(message) {
+  // Works for desktop browsers
+  navigator.clipboard.writeText(message);
+  alert('Link copied. Paste it anywhere.');
+}
+
+
 </script>
+{% endblock %}

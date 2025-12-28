@@ -220,3 +220,46 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// Featured Products Filter
+function filterProducts(filter) {
+    const products = document.querySelectorAll('#featured-products .group');
+    const buttons = document.querySelectorAll('.filter-btn');
+    
+    console.log('Filtering by:', filter);
+    console.log('Found products:', products.length);
+    
+    // Debug: log all product filters
+    products.forEach(product => {
+        console.log('Product filter:', product.dataset.filter, 'Debug:', product.dataset.debug);
+    });
+    
+    // Update button styles
+    buttons.forEach(btn => {
+        btn.classList.remove('bg-white', 'text-gray-800', 'shadow-sm');
+        btn.classList.add('text-gray-600');
+    });
+    
+    const activeBtn = document.querySelector(`button[onclick="filterProducts('${filter}')"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('bg-white', 'text-gray-800', 'shadow-sm');
+        activeBtn.classList.remove('text-gray-600');
+    }
+    
+    // Filter products
+    let visibleCount = 0;
+    products.forEach(product => {
+        const productFilter = product.dataset.filter;
+        if (filter === 'all') {
+            product.style.display = 'block';
+            visibleCount++;
+        } else if (productFilter === filter) {
+            product.style.display = 'block';
+            visibleCount++;
+        } else {
+            product.style.display = 'none';
+        }
+    });
+    
+    console.log('Visible products after filter:', visibleCount);
+}
