@@ -23,13 +23,18 @@ def index(request):
         cartItems = data["cartItems"]
 
         featured_products = Product.objects.filter(is_featured=True).prefetch_related('images', 'reviews')[:8]
+        print(f"Featured products count: {featured_products.count()}")
+        for product in featured_products:
+            print(f"Product: {product.name}, Featured: {product.is_featured}, New: {product.is_new_arrival}, Best: {product.is_best_seller}")
+            
         five_star_reviews = Review.objects.filter(rating=5).select_related('user', 'product').order_by('-created_at')[:10]
         context = {
             "featured_products": featured_products,
             "cartItems": cartItems,
             "five_star_reviews": five_star_reviews,
         }
-    except Exception:
+    except Exception as e:
+        print(f"Error in index view: {e}")
         context = {
             "featured_products": [],
             "cartItems": 0,

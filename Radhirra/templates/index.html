@@ -161,8 +161,9 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="featured-products">
-        {% for product in featured_products %}
-        <div class="group" data-filter="{% if product.is_new_arrival %}new{% elif product.is_best_seller %}best{% else %}all{% endif %}" data-debug="{{ product.name }}: new={{ product.is_new_arrival }}, best={{ product.is_best_seller }}">
+        {% if featured_products %}
+          {% for product in featured_products %}
+        <div class="group" data-filter="{% if product.is_new_arrival %}new{% elif product.is_best_seller %}best{% else %}all{% endif %}" data-debug="{{ product.name }}: new={{ product.is_new_arrival }}, best={{ product.is_best_seller }}, featured={{ product.is_featured }}">
           <div class="relative overflow-hidden rounded-lg mb-4">
             {% if product.is_new_arrival %}
             <span class="absolute top-3 left-3 bg-primary text-white text-xs px-2 py-1 rounded z-10">New</span>
@@ -208,11 +209,12 @@
             {% endif %}
           </div>
         </div>
-        {% empty %}
-        <div class="col-span-full text-center py-12">
-          <p class="text-gray-500">No featured products available at the moment.</p>
-        </div>
         {% endfor %}
+        {% else %}
+        <div class="col-span-full text-center py-12">
+          <p class="text-gray-500">No featured products available. Please mark some products as featured in the admin panel.</p>
+        </div>
+        {% endif %}
       </div>
 
       <div class="text-center mt-12">
