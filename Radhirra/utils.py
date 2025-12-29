@@ -46,7 +46,10 @@ def cartData(request):
     if request.user.is_authenticated:
         # Changed from customer = request.user.customer to user = request.user
         user = request.user
-        order, created = Order.objects.get_or_create(user=user, complete=False)
+        # Fix: Handle multiple incomplete orders by getting the first one or creating new
+        order = Order.objects.filter(user=user, complete=False).first()
+        if not order:
+            order = Order.objects.create(user=user, complete=False)
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:

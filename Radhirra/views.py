@@ -320,9 +320,10 @@ def updateItem(request):
     # Changed from customer = request.user.customer to user = request.user
     user = request.user
     product = Product.objects.get(id=productId)
-    order, created = Order.objects.get_or_create(
-        user=user, complete=False
-    )  # Changed customer=customer to user=user
+    # Fix: Handle multiple incomplete orders
+    order = Order.objects.filter(user=user, complete=False).first()
+    if not order:
+        order = Order.objects.create(user=user, complete=False)
     orderItem, created = OrderItem.objects.get_or_create(order=order, product=product)
 
     if action == "add":
@@ -346,9 +347,10 @@ def processOrder(request):
     if request.user.is_authenticated:
         # Changed from customer = request.user.customer to user = request.user
         user = request.user
-        order, created = Order.objects.get_or_create(
-            user=user, complete=False
-        )  # Changed customer=customer to user=user
+        # Fix: Handle multiple incomplete orders
+        order = Order.objects.filter(user=user, complete=False).first()
+        if not order:
+            order = Order.objects.create(user=user, complete=False)
     else:
         # guestOrder function might need to be updated to handle user instead of customer
         user, order = guestOrder(request, data)  # This function might need review

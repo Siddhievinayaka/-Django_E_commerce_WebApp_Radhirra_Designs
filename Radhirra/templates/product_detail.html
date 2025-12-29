@@ -53,7 +53,7 @@
           </div>
         </div>
 
-        <div class="mt-6">
+        <div class="mt-6" style="display: none;">
           <h3 class="text-sm font-medium text-gray-900 dark:text-text-main mb-3">Size</h3>
           <div class="flex items-center space-x-3 flex-wrap" id="size-options">
             {% for size in product.SIZE_CHOICES %}
@@ -65,7 +65,7 @@
           </div>
         </div>
         
-        <div class="mt-6">
+        <div class="mt-6" style="display: none;">
           <h3 class="text-sm font-medium text-gray-900 dark:text-text-main mb-3">Sleeve</h3>
           <div class="flex items-center space-x-3" id="sleeve-options">
             {% for sleeve in product.SLEEVE_CHOICES %}
@@ -274,23 +274,25 @@ document.querySelectorAll('.sleeve-option').forEach(option => {
 // Add to cart functionality
 document.getElementById('add-to-cart-btn').addEventListener('click', function() {
   const productId = this.dataset.product;
-  const selectedSize = document.querySelector('input[name="size"]:checked');
-  const selectedSleeve = document.querySelector('input[name="sleeve"]:checked');
+  // Disabled for now - may need in future
+  // const selectedSize = document.querySelector('input[name="size"]:checked');
+  // const selectedSleeve = document.querySelector('input[name="sleeve"]:checked');
   
-  if (!selectedSize) {
-    alert('Please select a size');
-    return;
-  }
+  // Disabled validation - may need in future
+  // if (!selectedSize) {
+  //   alert('Please select a size');
+  //   return;
+  // }
   
-  if (!selectedSleeve) {
-    alert('Please select a sleeve type');
-    return;
-  }
+  // if (!selectedSleeve) {
+  //   alert('Please select a sleeve type');
+  //   return;
+  // }
   
   const data = {
     product_id: productId,
-    size: selectedSize.value,
-    sleeve: selectedSleeve.value,
+    size: null, // selectedSize ? selectedSize.value : null,
+    sleeve: null, // selectedSleeve ? selectedSleeve.value : null,
     action: 'add'
   };
   

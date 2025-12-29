@@ -171,7 +171,7 @@
       {% endfor %}
       
       orderDetails += `Total Amount: ₹{{ order.get_cart_total }}\n\n`;
-      orderDetails += `Shipping Address: ${fullAddress}\n\n`;
+      orderDetails += `Shipping Address:\n ${fullAddress}\n\n`;
       if (note) orderDetails += `Order Note: ${note}\n\n`;
       
       return orderDetails;
@@ -228,7 +228,8 @@
           if (orderType === 'whatsapp') {
             const whatsappNumber = '+919821213730';
             const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
-            window.open(whatsappUrl, '_blank');
+            // Use location.href for better iPhone compatibility
+            window.location.href = whatsappUrl;
           } else {
             const subject = 'New Order Request – Order #' + data.order_id;
             const emailUrl = `mailto:meghnachini@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(orderDetails)}`;
