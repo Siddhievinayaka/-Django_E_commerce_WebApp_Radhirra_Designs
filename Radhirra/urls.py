@@ -18,6 +18,11 @@ urlpatterns = [
     # New WhatsApp/Email order endpoints
     path("create_whatsapp_order/", views.create_whatsapp_order, name="create_whatsapp_order"),
     path("create_email_order/", views.create_email_order, name="create_email_order"),
+    path("my_orders/", views.my_orders, name="my_orders"),
+    path("get_user_orders/", views.get_user_orders, name="get_user_orders"),
+    path("get_order_details/<int:order_id>/", views.get_order_details, name="get_order_details"),
+    path("cancel_order/<int:order_id>/", views.cancel_order, name="cancel_order"),
+    path("reorder_items/<int:order_id>/", views.reorder_items, name="reorder_items"),
 ]
 
 urlpatterns += [

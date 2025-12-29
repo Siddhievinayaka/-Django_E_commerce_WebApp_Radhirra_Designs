@@ -168,6 +168,9 @@
 
               <a href="#" onclick="proceedToCheckout()" class="block w-full bg-gradient-to-r from-primary to-secondary hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-4 px-6 rounded-lg text-center transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl mb-4">Proceed to Checkout</a>
 
+              {% if user.is_authenticated %}
+              <a href="{% url 'my_orders' %}" class="block w-full text-center text-primary hover:text-secondary font-medium py-2 transition-colors mb-2">My Orders</a>
+              {% endif %}
               <a href="{% url 'all_products' %}" class="block w-full text-center text-primary hover:text-secondary font-medium py-2 transition-colors">← Continue Shopping</a>
             </div>
           </div>

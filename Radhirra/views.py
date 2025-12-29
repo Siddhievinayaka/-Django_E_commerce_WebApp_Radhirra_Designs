@@ -19,15 +19,20 @@ from .models import Cart, CartItem, Product
 # Create your views here.
 def index(request):
     try:
-        data = cartData(request)
-        cartItems = data["cartItems"]
+        # Get cart items count
+        if request.user.is_authenticated:
+            cart = get_cart(request)
+            cartItems = sum(item.quantity for item in cart.items.all())
+        else:
+            data = cartData(request)
+            cartItems = data["cartItems"]
 
         featured_products = Product.objects.filter(is_featured=True).prefetch_related('images', 'reviews')[:8]
-        print(f"Featured products count: {featured_products.count()}")
-        for product in featured_products:
-            print(f"Product: {product.name}, Featured: {product.is_featured}, New: {product.is_new_arrival}, Best: {product.is_best_seller}")
-            
         five_star_reviews = Review.objects.filter(rating=5).select_related('user', 'product').order_by('-created_at')[:10]
+        
+        print(f"Featured products count: {featured_products.count()}")
+        print(f"Five star reviews count: {five_star_reviews.count()}")
+        
         context = {
             "featured_products": featured_products,
             "cartItems": cartItems,
@@ -562,6 +567,10 @@ def update_cart_item(request):
     
     return JsonResponse({'success': False})
 
+def my_orders(request):
+    context = {"cartItems": 0}
+    return render(request, "my_orders.html", context)
+
 def get_cart_items(request):
     cart = get_cart(request)
     items = cart.items.select_related("product").prefetch_related("product__images")
@@ -589,6 +598,108 @@ def get_cart_items(request):
     cart_data['cart_items_count'] = sum(item.quantity for item in items)
     
     return JsonResponse(cart_data)
+
+def get_user_orders(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'})
+    
+    orders = Order.objects.filter(user=request.user).prefetch_related('orderitem_set__product__images').order_by('-date_ordered')
+    
+    orders_data = []
+    for order in orders:
+        order_items = []
+        for item in order.orderitem_set.all():
+            product_image = item.product.main_image.image.url if item.product.main_image else '/static/images/no-image.png'
+            order_items.append({
+                'product_name': item.product.name,
+                'product_image': product_image,
+                'quantity': item.quantity,
+                'price_at_order': float(item.price_at_order),
+                'variant_info': item.variant_info or 'N/A'
+            })
+        
+        orders_data.append({
+            'id': order.id,
+            'order_type': order.order_type,
+            'order_status': order.order_status,
+            'total_amount': float(order.total_amount),
+            'date_ordered': order.date_ordered.strftime('%Y-%m-%d'),
+            'items': order_items
+        })
+    
+    return JsonResponse({'success': True, 'orders': orders_data})
+
+def get_order_details(request, order_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'})
+    
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        order_items = []
+        for item in order.orderitem_set.all():
+            order_items.append({
+                'product_name': item.product.name,
+                'quantity': item.quantity,
+                'price_at_order': float(item.price_at_order),
+                'variant_info': item.variant_info or 'N/A'
+            })
+        
+        order_data = {
+            'id': order.id,
+            'order_type': order.order_type,
+            'order_status': order.order_status,
+            'total_amount': float(order.total_amount),
+            'contact_value': order.contact_value,
+            'date_ordered': order.date_ordered.strftime('%Y-%m-%d'),
+            'items': order_items
+        }
+        
+        return JsonResponse({'success': True, 'order': order_data})
+    except Order.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Order not found'})
+
+def cancel_order(request, order_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'})
+    
+    if request.method == 'POST':
+        try:
+            order = Order.objects.get(id=order_id, user=request.user)
+            if order.order_status == 'pending':
+                order.order_status = 'cancelled'
+                order.save()
+                return JsonResponse({'success': True, 'message': 'Order cancelled successfully'})
+            else:
+                return JsonResponse({'success': False, 'error': 'Order cannot be cancelled'})
+        except Order.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Order not found'})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def reorder_items(request, order_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Authentication required'})
+    
+    if request.method == 'POST':
+        try:
+            order = Order.objects.get(id=order_id, user=request.user)
+            cart = get_cart(request)
+            
+            for order_item in order.orderitem_set.all():
+                cart_item, created = CartItem.objects.get_or_create(
+                    cart=cart,
+                    product=order_item.product,
+                    defaults={'quantity': order_item.quantity}
+                )
+                if not created:
+                    cart_item.quantity += order_item.quantity
+                    cart_item.save()
+            
+            return JsonResponse({'success': True, 'message': 'Items added to cart'})
+        except Order.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Order not found'})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def get_cart_drawer(request):
     return render(request, 'includes/cart_drawer.html')
@@ -625,3 +736,7 @@ def add_to_cart_ajax(request):
         })
     
     return JsonResponse({'success': False})
+
+def my_orders(request):
+    context = {"cartItems": 0}
+    return render(request, "my_orders.html", context)
