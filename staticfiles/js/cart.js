@@ -1,22 +1,23 @@
 function addToCart() {
-  // Check if user is authenticated
   if (!isUserAuthenticated()) {
     showLoginModal();
     return;
   }
   
-  const selectedSize = document.querySelector('input[name="size"]:checked');
-  const selectedSleeve = document.querySelector('input[name="sleeve"]:checked');
+  // Disabled for now - may need in future
+  // const selectedSize = document.querySelector('input[name="size"]:checked');
+  // const selectedSleeve = document.querySelector('input[name="sleeve"]:checked');
   
-  if (!selectedSize) {
-    alert('Please select a size');
-    return;
-  }
+  // Disabled validation - may need in future
+  // if (!selectedSize) {
+  //   alert('Please select a size');
+  //   return;
+  // }
   
-  if (!selectedSleeve) {
-    alert('Please select a sleeve type');
-    return;
-  }
+  // if (!selectedSleeve) {
+  //   alert('Please select a sleeve type');
+  //   return;
+  // }
   
   const csrftoken = getCookie('csrftoken');
   
@@ -28,13 +29,17 @@ function addToCart() {
     },
     body: JSON.stringify({
       product_id: document.querySelector('[onclick="addToCart()"]').dataset.product,
-      size: selectedSize.value,
-      sleeve: selectedSleeve.value
+      size: null, // selectedSize ? selectedSize.value : null,
+      sleeve: null // selectedSleeve ? selectedSleeve.value : null
     })
   })
   .then(response => response.json())
   .then(data => {
     if (data.success) {
+      const cartTotal = document.getElementById('cart-total');
+      if (cartTotal) {
+        cartTotal.textContent = data.cart_items;
+      }
       openCartDrawer();
     }
   });
