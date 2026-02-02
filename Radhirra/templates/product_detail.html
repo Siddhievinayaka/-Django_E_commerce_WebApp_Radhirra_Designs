@@ -244,7 +244,7 @@
     </div>
   </div>
 </div>
-<script src="{% static 'js/cart.js' %}"></script>
+<script src="{% static 'js/cart.js' %}?v=2"></script>
 <script>
 // Size and sleeve selection
 document.querySelectorAll('.size-option').forEach(option => {
@@ -271,54 +271,7 @@ document.querySelectorAll('.sleeve-option').forEach(option => {
   });
 });
 
-// Add to cart functionality
-document.getElementById('add-to-cart-btn').addEventListener('click', function() {
-  const productId = this.dataset.product;
-  // Disabled for now - may need in future
-  // const selectedSize = document.querySelector('input[name="size"]:checked');
-  // const selectedSleeve = document.querySelector('input[name="sleeve"]:checked');
-  
-  // Disabled validation - may need in future
-  // if (!selectedSize) {
-  //   alert('Please select a size');
-  //   return;
-  // }
-  
-  // if (!selectedSleeve) {
-  //   alert('Please select a sleeve type');
-  //   return;
-  // }
-  
-  const data = {
-    product_id: productId,
-    size: null, // selectedSize ? selectedSize.value : null,
-    sleeve: null, // selectedSleeve ? selectedSleeve.value : null,
-    action: 'add'
-  };
-  
-  fetch('/add_to_cart/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': csrftoken
-    },
-    body: JSON.stringify(data)
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      this.innerHTML = 'Added to Cart!';
-      this.style.backgroundColor = '#10b981';
-      setTimeout(() => {
-        this.innerHTML = 'Add to Cart';
-        this.style.backgroundColor = '#9f77c9';
-      }, 2000);
-      
-      // Update cart count
-      document.getElementById('cart-total').textContent = data.cart_items;
-    }
-  });
-});
+// Add to cart functionality is handled by cart.js file
 
 
 function shareProduct() {
